@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpLogica Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-deep: #030306;
+            --bg-primary: #060810;
+            --bg-panel: #0a0e14;
+            --bg-elevated: #0e1219;
+            --bg-hover: #111620;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(0,217,255,0.2);
+            --text-primary: #e8ecf1;
+            --text-secondary: #8b92a0;
+            --text-muted: #4e5563;
+            --accent-cyan: #00D9FF;
+            --accent-green: #00FF88;
+            --accent-amber: #FF9F43;
+            --accent-red: #ff4757;
+            --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --sidebar-w: 272px;
+            --header-h: 54px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.72;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════ HEADER ═══════ */
+        .docs-header {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: var(--header-h);
+            background: rgba(6,8,16,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px;
+            z-index: 200;
+        }
+        .header-left {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-logo {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
+        }
+        .header-logo svg { width: 26px; height: 26px; }
+        .header-logo span {
+            font-weight: 700; font-size: 15px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-breadcrumb {
+            color: var(--text-muted); font-size: 13px;
+        }
+        .header-breadcrumb::before {
+            content: '/'; margin: 0 8px; opacity: 0.4;
+        }
+        .header-right a {
+            color: var(--text-secondary); text-decoration: none; font-size: 13px;
+            padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .header-right a:hover {
+            color: var(--accent-cyan); border-color: var(--border-accent);
+        }
+        .hamburger {
+            display: none; background: none; border: none;
+            color: var(--text-primary); font-size: 22px; cursor: pointer;
+            padding: 4px 8px; border-radius: 4px;
+        }
+        .hamburger:hover { background: var(--bg-hover); }
+
+        /* ═══════ SIDEBAR ═══════ */
+        .docs-sidebar {
+            position: fixed; left: 0; top: var(--header-h); bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto; overflow-x: hidden;
+            z-index: 90;
+            transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+            padding: 20px 0 40px;
+        }
+        .docs-sidebar::-webkit-scrollbar { width: 3px; }
+        .docs-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .sidebar-label {
+            padding: 0 20px; margin-bottom: 8px; margin-top: 20px;
+            font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+        .sidebar-label:first-child { margin-top: 4px; }
+
+        .docs-sidebar a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 20px; margin: 1px 8px; border-radius: 6px;
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 13.5px; font-weight: 400;
+            transition: all 0.15s; position: relative;
+        }
+        .docs-sidebar a:hover {
+            color: var(--text-primary); background: var(--bg-hover);
+        }
+        .docs-sidebar a.active {
+            color: var(--accent-cyan); background: rgba(0,217,255,0.06);
+            font-weight: 500;
+        }
+        .docs-sidebar a.active::before {
+            content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+            width: 2px; background: var(--accent-cyan); border-radius: 2px;
+        }
+        .docs-sidebar a.sub { padding-left: 38px; font-size: 13px; }
+        .docs-sidebar a .nav-num {
+            color: var(--text-muted); font-size: 11px; font-weight: 500;
+            min-width: 18px;
+        }
+
+        .sidebar-divider {
+            height: 1px; background: var(--border); margin: 12px 20px;
+        }
+
+        /* ═══════ CONTENT ═══════ */
+        .docs-content {
+            margin-left: var(--sidebar-w);
+            margin-top: var(--header-h);
+            padding: 48px 56px 80px;
+            max-width: 880px;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em;
+            margin-bottom: 8px; line-height: 1.25;
+        }
+        h1 + .subtitle {
+            font-size: 15px; color: var(--text-secondary); margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        h2 {
+            font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em;
+            margin-top: 56px; margin-bottom: 6px;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        h3 {
+            font-size: 1.05rem; font-weight: 600;
+            margin-top: 36px; margin-bottom: 10px;
+            color: var(--accent-cyan);
+        }
+        p { margin-bottom: 14px; color: var(--text-secondary); font-size: 15px; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        em { color: var(--text-muted); }
+        a { color: var(--accent-cyan); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        ul, ol { margin: 8px 0 16px 20px; }
+        li { margin-bottom: 5px; color: var(--text-secondary); font-size: 15px; }
+        li strong { font-weight: 600; }
+
+        /* Inline code */
+        code {
+            font-family: var(--font-mono); font-size: 13px;
+            background: rgba(0,217,255,0.07); color: var(--accent-cyan);
+            padding: 2px 7px; border-radius: 4px;
+        }
+
+        /* ═══════ DEFINITION BOXES ═══════ */
+        .def-box {
+            background: var(--bg-panel);
+            border-left: 3px solid var(--accent-cyan);
+            border-radius: 0 10px 10px 0;
+            padding: 18px 22px; margin: 18px 0;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .def-box.axiom { border-left-color: var(--accent-green); }
+        .def-box.warning { border-left-color: var(--accent-amber); }
+
+        .def-title {
+            font-weight: 700; font-size: 14px; margin-bottom: 10px;
+            color: var(--accent-cyan); letter-spacing: 0.01em;
+        }
+        .def-box.axiom .def-title { color: var(--accent-green); }
+        .def-box p { margin-bottom: 5px; font-size: 14px; line-height: 1.65; }
+        .def-box code { font-size: 12.5px; }
+
+        /* ═══════ CODE BLOCKS ═══════ */
+        .code-block {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 22px; margin: 16px 0;
+            font-family: var(--font-mono); font-size: 13px;
+            line-height: 1.65; overflow-x: auto;
+            color: var(--text-secondary); white-space: pre;
+        }
+        .code-block .kw { color: var(--accent-cyan); font-weight: 500; }
+        .code-block .val { color: var(--accent-green); }
+        .code-block .cm { color: var(--text-muted); font-style: italic; }
+        .code-block .str { color: var(--accent-amber); }
+
+        /* ═══════ TABLES ═══════ */
+        .docs-table {
+            width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px;
+        }
+        .docs-table th {
+            background: var(--bg-elevated); color: var(--accent-cyan);
+            padding: 11px 16px; text-align: left; font-weight: 600; font-size: 13px;
+            border-bottom: 2px solid var(--border-accent);
+        }
+        .docs-table td {
+            padding: 10px 16px; border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .docs-table td strong { color: var(--accent-green); }
+        .docs-table tbody tr:hover td { background: rgba(0,217,255,0.015); }
+
+        /* ═══════ INFO BOXES ═══════ */
+        .info-box {
+            background: rgba(0,217,255,0.04);
+            border: 1px solid rgba(0,217,255,0.12);
+            border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+            font-size: 14px; line-height: 1.65;
+        }
+        .info-box.green {
+            background: rgba(0,255,136,0.04);
+            border-color: rgba(0,255,136,0.12);
+        }
+        .info-box strong { display: inline; }
+
+        /* ═══════ BUTTONS ═══════ */
+        .docs-btn {
+            display: inline-block; padding: 9px 22px; border-radius: 7px;
+            text-decoration: none !important; font-weight: 600; font-size: 13px;
+            margin: 6px 8px 6px 0; transition: all 0.2s;
+        }
+        .docs-btn.primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #00c4e6);
+            color: #000; box-shadow: 0 2px 12px rgba(0,217,255,0.15);
+        }
+        .docs-btn.primary:hover { box-shadow: 0 4px 20px rgba(0,217,255,0.25); transform: translateY(-1px); }
+        .docs-btn.secondary {
+            background: rgba(0,217,255,0.08);
+            border: 1px solid rgba(0,217,255,0.25); color: var(--accent-cyan);
+        }
+        .docs-btn.secondary:hover { background: rgba(0,217,255,0.12); }
+
+        /* ═══════ LAYER STACK ═══════ */
+        .layer-stack { margin: 20px 0; }
+        .layer-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 13px 18px; background: var(--bg-panel);
+            border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 6px; transition: border-color 0.2s;
+        }
+        .layer-item:hover { border-color: var(--border-accent); }
+        .layer-badge {
+            background: var(--accent-cyan); color: #000;
+            font-weight: 700; font-size: 12px; font-family: var(--font-mono);
+            padding: 3px 9px; border-radius: 5px; min-width: 32px; text-align: center;
+        }
+        .layer-name { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+        .layer-desc { font-size: 13px; color: var(--text-muted); margin-left: 2px; }
+
+        /* ═══════ SECTION ANCHOR ═══════ */
+        .docs-section { scroll-margin-top: 72px; }
+
+        /* ═══════ FOOTER ═══════ */
+        .docs-footer {
+            margin-top: 64px; padding-top: 28px;
+            border-top: 1px solid var(--border);
+            text-align: center; color: var(--text-muted); font-size: 13px;
+            line-height: 1.7;
+        }
+        .docs-footer a { color: var(--accent-cyan); }
+
+        /* ═══════ MOBILE ═══════ */
+        @media (max-width: 920px) {
+            .hamburger { display: block; }
+            .docs-sidebar { transform: translateX(-100%); width: 260px; }
+            .docs-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+            .docs-content { margin-left: 0; padding: 36px 20px 60px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.2rem; }
+            .code-block { font-size: 12px; padding: 14px 16px; }
+        }
+
+        /* ═══════ OVERLAY (mobile) ═══════ */
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 85;
+        }
+        .sidebar-overlay.show { display: block; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="docs-header">
+    <div class="header-left">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+        <a href="/" class="header-logo">
+            <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="url(#hg)" stroke-width="2"/><path d="M13 20Q20 10 27 20Q20 30 13 20" fill="none" stroke="#00FF88" stroke-width="1.5"/><defs><linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00D9FF"/><stop offset="100%" stop-color="#00FF88"/></linearGradient></defs></svg>
+            <span>OpLogica</span>
+        </a>
+        <span class="header-breadcrumb">Documentation</span>
+    </div>
+    <div class="header-right">
+        <a href="/">← Back to Home</a>
+    </div>
+</header>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<nav class="docs-sidebar" id="sidebar">
+    <div class="sidebar-label">Getting Started</div>
+    <a href="#overview"><span class="nav-num">1</span> Overview</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Framework</div>
+    <a href="#framework"><span class="nav-num">2</span> Triadic Framework</a>
+    <a href="#poo" class="sub">2.1 Proof of Operation</a>
+    <a href="#por" class="sub">2.2 Proof of Reason</a>
+    <a href="#poi" class="sub">2.3 Proof of Intent</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Technical</div>
+    <a href="#definitions"><span class="nav-num">3</span> Formal Definitions</a>
+    <a href="#architecture"><span class="nav-num">4</span> Architecture</a>
+    <a href="#dsl"><span class="nav-num">5</span> Constraint DSL</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Validation</div>
+    <a href="#demos"><span class="nav-num">6</span> Interactive Demos</a>
+    <a href="#results"><span class="nav-num">7</span> Empirical Results</a>
+    <a href="#regulatory"><span class="nav-num">8</span> Regulatory Alignment</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Reference</div>
+    <a href="#api"><span class="nav-num">9</span> API Reference</a>
+    <a href="#source"><span class="nav-num">10</span> Source Code</a>
+</nav>
+
+<!-- ═══════ OVERLAY ═══════ -->
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══════ CONTENT ═══════ -->
+<main class="docs-content">
+
+    <!-- ── 1. OVERVIEW ── -->
+    <section id="overview" class="docs-section">
+        <h1>OpLogica Framework Documentation</h1>
+        <p class="subtitle">Complete technical reference for the triadic verification framework for accountable AI decision systems.</p>
+
+        <p>OpLogica is a <strong>triadic verification framework</strong> that unifies three dimensions of AI accountability:</p>
+        <ul>
+            <li><strong>Operational integrity</strong> — proving computations executed correctly</li>
+            <li><strong>Logical justification</strong> — proving decisions follow from premises and rules</li>
+            <li><strong>Ethical alignment</strong> — proving decisions satisfy pre-declared constraints</li>
+        </ul>
+        <p>Unlike post-hoc explanation methods (LIME, SHAP), OpLogica provides formal <strong>justifications</strong>: verifiable demonstrations that specific decisions followed necessarily from declared constraints and observed data.</p>
+
+        <div class="info-box">
+            <strong>📄 Paper:</strong> "OpLogica: A Triadic Verification Framework for Accountable AI Decision Systems — Design, Implementation, and Empirical Validation"<br>
+            Currently under peer review at <em>AI and Ethics</em> (Springer Nature).<br><br>
+            <strong>📜 License:</strong> Apache 2.0
+        </div>
+    </section>
+
+    <!-- ── 2. TRIADIC FRAMEWORK ── -->
+    <section id="framework" class="docs-section">
+        <h2>2. The Triadic Framework</h2>
+        <p>OpLogica's core innovation is unifying three proof types into a single, cryptographically bound verification bundle. No other framework integrates all three.</p>
+    </section>
+
+    <section id="poo" class="docs-section">
+        <h3>2.1 Proof of Operation (PoO)</h3>
+        <p>Cryptographic verification that computational processes executed as specified — without tampering or corruption.</p>
+        <p><strong>Purpose:</strong> Ensure no unauthorized modification occurred during decision computation.</p>
+        <p><strong>Mechanism:</strong></p>
+        <ul>
+            <li>State serialization: All inputs (patient data D, policy P, timestamp T) are deterministically serialized</li>
+            <li>SHA-256 hashing of the serialized state</li>
+            <li>HMAC-SHA256 signature for authenticity</li>
+            <li>Timestamp binding to establish temporal ordering</li>
+        </ul>
+        <p><strong>What it proves:</strong> The decision record is intact and was produced by the authorized system at the claimed time.</p>
+        <p><em>Paper reference: Definition 3.1, Layer L0–L1</em></p>
+    </section>
+
+    <section id="por" class="docs-section">
+        <h3>2.2 Proof of Reason (PoR)</h3>
+        <p>Formal demonstration that decisions follow necessarily from premises and rules. Not just "what features mattered," but <strong>why the output was the right one</strong> given declared policies and observed data.</p>
+        <p><strong>Mechanism:</strong></p>
+        <ul>
+            <li>Directed Acyclic Graph (DAG) called a "Reason Graph"</li>
+            <li>Three node types: <strong>Premises</strong> (observed data), <strong>Rules</strong> (from policy), <strong>Conclusions</strong> (derived)</li>
+            <li>Edges represent inference relationships (input, entails, determines)</li>
+            <li>Δ-Logic Engine evaluates rules deterministically</li>
+            <li>Graph is hashed and signed for integrity</li>
+        </ul>
+        <p><strong>What it proves:</strong> The decision is the unique logical consequence of the given data and the declared policy.</p>
+        <p><em>Paper reference: Definition 3.3–3.4, Layer L3</em></p>
+    </section>
+
+    <section id="poi" class="docs-section">
+        <h3>2.3 Proof of Intent (PoI)</h3>
+        <p>A priori declaration of ethical constraints, cryptographically signed <strong>before</strong> any decision is made.</p>
+        <p><strong>Purpose:</strong> Prevents post-hoc rationalization. The system proves that constraints existed before operations and that decisions satisfied them.</p>
+        <p><strong>Mechanism:</strong></p>
+        <ul>
+            <li>Policy declaration with constraints in a formal DSL</li>
+            <li>Cryptographic signing at declaration time (before any decisions)</li>
+            <li>Temporal Precedence (Axiom 3.1): PoI timestamp &lt; Decision timestamp</li>
+            <li>Automated constraint verification at decision time</li>
+            <li>Each constraint marked as: satisfied, violated, or triggered (warning)</li>
+        </ul>
+        <p><strong>What it proves:</strong> The ethical rules were not invented after the fact. They were committed to in advance.</p>
+        <p><em>Paper reference: Definition 3.5–3.6, Layer L3</em></p>
+    </section>
+
+    <!-- ── 3. FORMAL DEFINITIONS ── -->
+    <section id="definitions" class="docs-section">
+        <h2>3. Formal Definitions</h2>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.1 — Proof of Operation (PoO)</div>
+            <p>A Proof of Operation is a tuple <code>PoO = (H, T, Σ)</code> where:</p>
+            <p>• <code>H = SHA3-256(serialize(D, P, T))</code> — cryptographic hash of the decision state</p>
+            <p>• <code>T ∈ ISO-8601</code> — UTC timestamp</p>
+            <p>• <code>Σ = Sign(sk, H ∥ T)</code> — digital signature</p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.2 — Verification Predicate</div>
+            <p><code>V(PoO) = 1</code> iff <code>Verify(pk, Σ, H ∥ T) = 1 ∧ T ≤ T_now</code></p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.3 — Reason Graph</div>
+            <p>A Reason Graph is a directed acyclic graph <code>G = (V, E)</code> where:</p>
+            <p>• <code>V = V_premise ∪ V_rule ∪ V_conclusion</code> (disjoint partition)</p>
+            <p>• <code>E ⊆ V × V</code> with labels ∈ {input, entails, determines}</p>
+            <p>• For every <code>v ∈ V_conclusion</code>, ∃ path from <code>v' ∈ V_premise</code> through <code>v'' ∈ V_rule</code></p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.4 — Proof of Reason (PoR)</div>
+            <p><code>PoR = (G, Δ, H_G)</code> where:</p>
+            <p>• <code>G</code> — valid Reason Graph</p>
+            <p>• <code>Δ</code> — delta-logic evaluation trace</p>
+            <p>• <code>H_G = SHA3-256(serialize(G))</code></p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.5 — Constraint Specification</div>
+            <p>A constraint <code>C = (id, rule, severity)</code> where:</p>
+            <p>• <code>rule</code> — predicate over decision variables</p>
+            <p>• <code>severity ∈ {mandatory, warning}</code></p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.6 — Proof of Intent (PoI)</div>
+            <p><code>PoI = (P, C_set, T_decl, Σ_decl)</code> where:</p>
+            <p>• <code>P</code> — policy name</p>
+            <p>• <code>C_set = {C₁, ..., Cₙ}</code> — constraint set</p>
+            <p>• <code>T_decl &lt; T_decision</code> (Temporal Precedence)</p>
+            <p>• <code>Σ_decl = Sign(sk, serialize(P, C_set, T_decl))</code></p>
+        </div>
+
+        <div class="def-box">
+            <div class="def-title">Definition 3.7 — Verification Bundle</div>
+            <p><code>VB = (PoO, PoR, PoI, M_root)</code> where:</p>
+            <p>• <code>M_root = MerkleRoot(H_PoO, H_PoR, H_PoI)</code></p>
+            <p>• <code>V(VB) = 1</code> iff <code>V(PoO) ∧ V(PoR) ∧ V(PoI) ∧ VerifyMerkle(M_root)</code></p>
+        </div>
+
+        <div class="def-box axiom">
+            <div class="def-title">Axiom 3.1 — Temporal Precedence</div>
+            <p>For any valid verification bundle VB:</p>
+            <p><code>T_PoI &lt; T_PoO</code> — Intent must precede Operation</p>
+        </div>
+    </section>
+
+    <!-- ── 4. ARCHITECTURE ── -->
+    <section id="architecture" class="docs-section">
+        <h2>4. Architectural Layers</h2>
+        <p>OpLogica implements five architectural layers, from foundational event recording to external verification interfaces:</p>
+        <div class="layer-stack">
+            <div class="layer-item">
+                <span class="layer-badge">L4</span>
+                <div><span class="layer-name">Verification Interface</span><span class="layer-desc"> — REST/JSON APIs and offline validation</span></div>
+            </div>
+            <div class="layer-item">
+                <span class="layer-badge">L3</span>
+                <div><span class="layer-name">Logic Kernel of Trust</span><span class="layer-desc"> — Reason Graphs and Δ-Logic Engine</span></div>
+            </div>
+            <div class="layer-item">
+                <span class="layer-badge">L2</span>
+                <div><span class="layer-name">Witness Consensus</span><span class="layer-desc"> — Distributed timestamp federation</span></div>
+            </div>
+            <div class="layer-item">
+                <span class="layer-badge">L1</span>
+                <div><span class="layer-name">Post-Quantum Authenticity</span><span class="layer-desc"> — Dilithium-III signatures (NIST PQC)</span></div>
+            </div>
+            <div class="layer-item">
+                <span class="layer-badge">L0</span>
+                <div><span class="layer-name">Canonical Event Lineage</span><span class="layer-desc"> — Deterministic serialization, SHA3-256</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── 5. CONSTRAINT DSL ── -->
+    <section id="dsl" class="docs-section">
+        <h2>5. Constraint DSL</h2>
+        <p>OpLogica uses a domain-specific language for declaring constraints in the Proof of Intent:</p>
+        <div class="code-block"><span class="cm">// Medical Triage — Emergency Triage Protocol v2.1</span>
+
+<span class="kw">C1</span> (vital_priority, mandatory):
+  <span class="kw">WHEN</span> patient.vital_score &lt; <span class="val">0.5</span>
+  <span class="kw">THEN</span> decision.priority = <span class="val">HIGH</span>
+
+<span class="kw">C2</span> (fairness_bound, mandatory):
+  <span class="kw">FOR_ALL</span> group <span class="kw">IN</span> demographics:
+    |mean_wait(group) - mean_wait(all)| &lt;= <span class="val">0.04</span>
+
+<span class="kw">C3</span> (max_wait, warning):
+  <span class="kw">WHEN</span> patient.wait_time &gt; <span class="val">60</span>
+  <span class="kw">THEN</span> decision.reassessment = <span class="val">TRUE</span>
+
+<span class="kw">C4</span> (justification_required, mandatory):
+  <span class="kw">WHEN</span> decision.priority_changed = <span class="val">TRUE</span>
+  <span class="kw">THEN</span> reason_graph.depth &gt;= <span class="val">2</span></div>
+    </section>
+
+    <!-- ── 6. INTERACTIVE DEMOS ── -->
+    <section id="demos" class="docs-section">
+        <h2>6. Interactive Demos</h2>
+        <p>Try the OpLogica framework with live, interactive demonstrations:</p>
+
+        <div class="info-box green">
+            <strong>🔬 Medical Triage Demo</strong><br>
+            Deterministic patient triage with full triadic verification. Five patient parameters produce a priority decision with PoO, PoR, PoI, and Merkle root.<br><br>
+            <a href="/demo" class="docs-btn primary">Try Medical Triage Demo →</a>
+        </div>
+
+        <div class="info-box">
+            <strong>🏦 Financial Credit Assessment Demo</strong><br>
+            Deterministic loan evaluation with full triadic verification. 5 financial parameters → Approval decision with PoO, PoR, PoI, and Merkle root.<br><br>
+            <a href="/demo/finance" class="docs-btn secondary">Try Credit Assessment Demo →</a>
+        </div>
+
+        <div class="info-box">
+            <strong>💼 Employment Screening Demo</strong><br>
+            Deterministic candidate evaluation with full triadic verification. 5 applicant parameters → Hiring recommendation with PoO, PoR, PoI, and Merkle root.<br><br>
+            <a href="/demo/hiring" class="docs-btn secondary">Try Employment Screening Demo →</a>
+        </div>
+
+        <div class="info-box">
+            <strong>🏛️ Government Building Permit Demo</strong><br>
+            Deterministic permit evaluation with full triadic verification. 5 project parameters → Permit decision with PoO, PoR, PoI, and Merkle root.<br><br>
+            <a href="/demo/permits" class="docs-btn secondary">Try Building Permit Demo →</a>
+        </div>
+
+        <div class="info-box">
+            <strong>💬 Chat Integration</strong><br>
+            Ask the OpLogica chat for a triage assessment with patient parameters. The system intercepts the request and runs the deterministic engine automatically.<br><br>
+            <a href="/chat" class="docs-btn secondary">Open Chat →</a>
+        </div>
+
+        <p><strong>Coming Soon:</strong></p>
+        <ul>
+            <li>Legal Compliance Evaluation</li>
+        </ul>
+    </section>
+
+    <!-- ── 7. EMPIRICAL RESULTS ── -->
+    <section id="results" class="docs-section">
+        <h2>7. Empirical Results</h2>
+        <p>Validated in a medical triage simulation with <strong>1,000 synthetic patient cases</strong>. Comparative evaluation against LIME and unverified baseline:</p>
+
+        <table class="docs-table">
+            <thead>
+                <tr><th>Metric</th><th>OpLogica</th><th>LIME</th><th>Unverified</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Verification Coverage</td><td><strong>100%</strong></td><td>87%</td><td>0%</td></tr>
+                <tr><td>External Auditability</td><td><strong>98%</strong></td><td>71%</td><td>12%</td></tr>
+                <tr><td>Policy Compliance</td><td><strong>99.2%</strong></td><td>94%</td><td>89%</td></tr>
+                <tr><td>Mean Latency</td><td>47 ms</td><td>134 ms</td><td><strong>23 ms</strong></td></tr>
+                <tr><td>Constraint Satisfaction</td><td><strong>99.8%</strong></td><td>N/A</td><td>N/A</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Ablation Study:</strong> Each proof type contributes non-redundantly:</p>
+        <ul>
+            <li>Removing PoO → integrity verification drops to 0%</li>
+            <li>Removing PoR → auditability drops from 98% to 31%</li>
+            <li>Removing PoI → compliance drops from 99.2% to 76%</li>
+        </ul>
+        <p><em>All differences statistically significant at p &lt; 0.001</em></p>
+    </section>
+
+    <!-- ── 8. REGULATORY ── -->
+    <section id="regulatory" class="docs-section">
+        <h2>8. Regulatory Alignment</h2>
+
+        <h3>EU AI Act (2024)</h3>
+        <ul>
+            <li><strong>Article 14 — Human oversight:</strong> Decision Ledger provides full audit trail</li>
+            <li><strong>Article 13 — Transparency:</strong> Reason Graphs provide formal justifications</li>
+            <li><strong>High-risk classification:</strong> Triadic verification covers all requirements</li>
+        </ul>
+
+        <h3>GDPR Article 22</h3>
+        <p>"Meaningful information about the logic involved" — OpLogica provides exactly this: not just feature importance, but formal proof that the decision followed from declared rules.</p>
+
+        <h3>NIST AI Risk Management Framework</h3>
+        <ul>
+            <li><strong>Map:</strong> Constraint DSL maps ethical requirements</li>
+            <li><strong>Measure:</strong> Empirical validation with 1,000 cases</li>
+            <li><strong>Manage:</strong> Verification bundles for ongoing compliance</li>
+        </ul>
+
+        <div class="info-box">
+            Aligned with EU AI Act and GDPR Article 22: OpLogica provides the "meaningful information about the logic involved" and verifiable record-keeping that regulators require for high-stakes and high-risk AI systems.
+        </div>
+    </section>
+
+    <!-- ── 9. API REFERENCE ── -->
+    <section id="api" class="docs-section">
+        <h2>9. API Reference</h2>
+        <h3>POST /api/triage-demo</h3>
+        <p>Run a medical triage assessment with full triadic verification.</p>
+
+        <p><strong>Request:</strong></p>
+        <div class="code-block">{
+  <span class="str">"vital_score"</span>: <span class="val">0.32</span>,        <span class="cm">// float 0–1</span>
+  <span class="str">"age"</span>: <span class="val">68</span>,                  <span class="cm">// integer</span>
+  <span class="str">"comorbidity_index"</span>: <span class="val">0.7</span>,   <span class="cm">// float 0–1</span>
+  <span class="str">"wait_time"</span>: <span class="val">50</span>,            <span class="cm">// integer (minutes)</span>
+  <span class="str">"resource_score"</span>: <span class="val">0.6</span>       <span class="cm">// float 0–1</span>
+}</div>
+
+        <p><strong>Response:</strong></p>
+        <div class="code-block">{
+  <span class="str">"decision"</span>: {
+    <span class="str">"priority"</span>: <span class="val">"HIGH"</span>,
+    <span class="str">"critical"</span>: <span class="val">true</span>,
+    <span class="str">"urgency"</span>: <span class="val">"IMMEDIATE"</span>,
+    <span class="str">"reassessment"</span>: <span class="val">false</span>,
+    <span class="str">"reasons"</span>: [...],
+    <span class="str">"allRules"</span>: [...]
+  },
+  <span class="str">"verification_bundle"</span>: {
+    <span class="str">"bundle_id"</span>: <span class="val">"VB-..."</span>,
+    <span class="str">"poo"</span>: { <span class="str">"hash"</span>: <span class="val">"..."</span>, <span class="str">"timestamp"</span>: <span class="val">"..."</span>, <span class="str">"signature"</span>: <span class="val">"..."</span> },
+    <span class="str">"por"</span>: { <span class="str">"graph"</span>: {...}, <span class="str">"hash"</span>: <span class="val">"..."</span> },
+    <span class="str">"poi"</span>: { <span class="str">"policy"</span>: <span class="val">"..."</span>, <span class="str">"results"</span>: [...] },
+    <span class="str">"merkle_root"</span>: <span class="val">"..."</span>,
+    <span class="str">"overall_result"</span>: <span class="val">"VERIFIED"</span>
+  }
+}</div>
+    </section>
+
+    <!-- ── 10. SOURCE CODE ── -->
+    <section id="source" class="docs-section">
+        <h2>10. Source Code &amp; Reproducibility</h2>
+        <p>The implementation is open-source under the <strong>Apache 2.0</strong> license.</p>
+
+        <p><strong>Key Files:</strong></p>
+        <ul>
+            <li><code>server/triageEngine.js</code> — Deterministic triage engine with triadic verification</li>
+            <li><code>server/index.js</code> — API endpoints and chat integration</li>
+            <li><code>public/demo.html</code> — Interactive demo interface</li>
+            <li><code>public/chat.html</code> — Chat interface with triage intercept</li>
+        </ul>
+
+        <p><strong>Reproducibility:</strong> All results in the paper can be reproduced using the provided code. The triage engine is fully deterministic: same inputs always produce the same decision and cryptographic proofs.</p>
+
+        <div class="info-box">
+            <strong>🔬 Code Ocean:</strong> Research capsules for reproducible execution available on the platform. 18 published capsules, 11 featured on the main page — placing the author in the top 0.1% of researchers globally on the platform.
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <div class="docs-footer">
+        OpLogica, Inc. (Delaware, USA) — Advancing accountable AI from research to practice.<br>
+        Academic correspondence: <a href="mailto:ceo@oplogica.com">ceo@oplogica.com</a>
+    </div>
+
+</main>
+
+<script>
+    // ═══════ SCROLL SPY ═══════
+    var sections = document.querySelectorAll('.docs-section');
+    var navLinks = document.querySelectorAll('.docs-sidebar a');
+
+    function updateSpy() {
+        var scrollPos = window.scrollY;
+        var current = '';
+        for (var i = 0; i < sections.length; i++) {
+            if (scrollPos >= sections[i].offsetTop - 90) {
+                current = sections[i].getAttribute('id');
+            }
+        }
+        for (var j = 0; j < navLinks.length; j++) {
+            navLinks[j].classList.remove('active');
+            if (navLinks[j].getAttribute('href') === '#' + current) {
+                navLinks[j].classList.add('active');
+            }
+        }
+    }
+    window.addEventListener('scroll', updateSpy);
+    window.addEventListener('load', updateSpy);
+
+    // ═══════ MOBILE SIDEBAR ═══════
+    function toggleSidebar() {
+        var sb = document.getElementById('sidebar');
+        var ov = document.getElementById('overlay');
+        sb.classList.toggle('open');
+        ov.classList.toggle('show');
+    }
+    // Close sidebar on nav click (mobile)
+    for (var k = 0; k < navLinks.length; k++) {
+        navLinks[k].addEventListener('click', function() {
+            if (window.innerWidth <= 920) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('overlay').classList.remove('show');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

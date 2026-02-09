@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reason Graph Visualizer — OpLogica</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #030306;
+            color: #e8ecf1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .rg-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Glassmorphism panel */
+        .rg-panel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-height: 480px;
+            background: rgba(10, 13, 18, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,217,255,0.06), inset 0 1px 0 rgba(255,255,255,0.03);
+            overflow: hidden;
+        }
+        .rg-panel__title {
+            position: absolute;
+            top: 14px;
+            left: 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(0, 217, 255, 0.9);
+            z-index: 10;
+        }
+        .rg-toggle {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            display: flex;
+            gap: 0;
+            z-index: 10;
+        }
+        .rg-toggle button {
+            padding: 6px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8b92a0;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .rg-toggle button:first-child { border-radius: 2px 0 0 2px; border-right: none; }
+        .rg-toggle button:last-child { border-radius: 0 2px 2px 0; }
+        .rg-toggle button:hover { color: #e8ecf1; }
+        .rg-toggle button.active { background: rgba(0, 217, 255, 0.08); border-color: rgba(0, 217, 255, 0.35); color: #00D9FF; }
+        .rg-svg-wrap {
+            position: absolute;
+            inset: 44px 16px 16px 16px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+        }
+        .rg-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        /* Parallax layers */
+        .rg-panel[data-parallax] .rg-svg-wrap { transform: translate(var(--px, 0), var(--py, 0)); transition: transform 0.12s ease-out; }
+        /* Node types */
+        .rg-node { cursor: pointer; transition: filter 0.2s; }
+        .rg-node.isolate-dim { opacity: 0.22; }
+        .rg-node.isolate-dim .rg-node__circle { stroke-opacity: 0.4; }
+        .rg-node--premise .rg-node__circle { fill: rgba(0, 217, 255, 0.12); stroke: rgba(0, 217, 255, 0.5); }
+        .rg-node--rule .rg-node__circle { fill: rgba(100, 180, 255, 0.08); stroke: rgba(100, 180, 255, 0.45); }
+        .rg-node--conclusion .rg-node__circle { fill: rgba(0, 255, 136, 0.12); stroke: rgba(0, 255, 136, 0.55); }
+        .rg-node.active .rg-node__circle { filter: url(#glow); stroke-width: 2.2; }
+        .rg-node--conclusion.reached .rg-node__circle { animation: conclusionPulse 1.2s ease-out 1 forwards; }
+        @keyframes conclusionPulse {
+            0% { filter: none; }
+            30% { filter: url(#glow); stroke-width: 2.5; }
+            100% { filter: url(#glow); stroke-width: 2; }
+        }
+        .rg-node__circle { stroke-width: 1.8; transition: stroke-width 0.25s ease, filter 0.25s ease; }
+        .rg-node__label { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #8b92a0; text-anchor: middle; pointer-events: none; transition: fill 0.2s; }
+        .rg-node:hover .rg-node__label { fill: #e8ecf1; }
+        .rg-node.isolate-dim .rg-node__label { fill: #5a6170; }
+        /* Edges */
+        .rg-edge { fill: none; stroke: rgba(0, 217, 255, 0.28); stroke-width: 1.2; transition: opacity 0.25s; }
+        .rg-edge.isolate-dim { opacity: 0.15; }
+        .rg-edge__arrow { fill: rgba(0, 217, 255, 0.4); }
+        .rg-pulse { fill: none; stroke: rgba(0, 255, 136, 0.6); stroke-width: 2; stroke-dasharray: 8 200; stroke-linecap: round; }
+        /* Tooltip */
+        .rg-tooltip {
+            position: fixed;
+            padding: 10px 14px;
+            background: rgba(10, 13, 18, 0.96);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2px;
+            font-size: 0.8rem;
+            color: #e8ecf1;
+            max-width: 260px;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            font-family: 'IBM Plex Sans', sans-serif;
+            line-height: 1.45;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s, transform 0.15s;
+        }
+        .rg-tooltip.visible { opacity: 1; transform: translateY(0); }
+        .rg-tooltip__role { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #00D9FF; margin-bottom: 4px; }
+        .rg-build-btn {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(0, 217, 255, 0.12);
+            border: 1px solid rgba(0, 217, 255, 0.35);
+            color: #00D9FF;
+            cursor: pointer;
+            border-radius: 2px;
+            z-index: 10;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .rg-build-btn:hover { background: rgba(0, 217, 255, 0.18); box-shadow: 0 0 20px rgba(0, 217, 255, 0.15); }
+        .rg-build-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="rg-wrap">
+        <div class="rg-panel" id="rg-panel">
+            <span class="rg-panel__title">Reason Graph Visualizer</span>
+            <div class="rg-toggle">
+                <button type="button" class="active" data-mode="explain">Explain</button>
+                <button type="button" data-mode="justify">Justify</button>
+            </div>
+            <div class="rg-svg-wrap" id="rg-svg-wrap">
+                <svg class="rg-svg" id="rg-svg" viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="2" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                            <path d="M0 0 L8 4 L0 8 Z" class="rg-edge__arrow"/>
+                        </marker>
+                    </defs>
+                    <g id="rg-edges"></g>
+                    <g id="rg-pulses"></g>
+                    <g id="rg-nodes"></g>
+                </svg>
+            </div>
+            <button type="button" class="rg-build-btn" id="rg-build-btn">Run reasoning sequence</button>
+        </div>
+    </div>
+    <div class="rg-tooltip" id="rg-tooltip"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        var panel = document.getElementById('rg-panel');
+        var svgWrap = document.getElementById('rg-svg-wrap');
+        var svg = document.getElementById('rg-svg');
+        var gEdges = document.getElementById('rg-edges');
+        var gPulses = document.getElementById('rg-pulses');
+        var gNodes = document.getElementById('rg-nodes');
+        var tooltip = document.getElementById('rg-tooltip');
+        var buildBtn = document.getElementById('rg-build-btn');
+
+        // Dummy Reason Graph: Premises → Rules → Conclusions
+        var graph = {
+            nodes: [
+                { id: 'p1', type: 'premise',  label: 'Input A', x: 120, y: 80,  role: 'Observed fact or input datum.' },
+                { id: 'p2', type: 'premise',  label: 'Input B', x: 120, y: 180, role: 'Observed fact or input datum.' },
+                { id: 'p3', type: 'premise',  label: 'Input C', x: 120, y: 280, role: 'Observed fact or input datum.' },
+                { id: 'r1', type: 'rule',     label: 'Policy 1', x: 340, y: 100, role: 'Logical rule or policy applied to premises.' },
+                { id: 'r2', type: 'rule',     label: 'Policy 2', x: 340, y: 260, role: 'Logical rule or policy applied to premises.' },
+                { id: 'r3', type: 'rule',     label: 'Merge',   x: 540, y: 180, role: 'Combination of prior rule outputs.' },
+                { id: 'c1', type: 'conclusion', label: 'Verdict', x: 740, y: 180, role: 'Final decision derived from the chain.' }
+            ],
+            edges: [
+                { from: 'p1', to: 'r1' },
+                { from: 'p2', to: 'r1' },
+                { from: 'p2', to: 'r2' },
+                { from: 'p3', to: 'r2' },
+                { from: 'r1', to: 'r3' },
+                { from: 'r2', to: 'r3' },
+                { from: 'r3', to: 'c1' }
+            ]
+        };
+
+        var nodeMap = {};
+        graph.nodes.forEach(function(n) { nodeMap[n.id] = n; });
+        var buildOrder = ['p1','p2','p3','r1','r2','r3','c1'];
+        var edgeBuildOrder = graph.edges.slice();
+
+        var state = {
+            mode: 'explain',
+            isolated: null,
+            built: [],
+            pulseEdge: null,
+            pulseProgress: 0
+        };
+
+        function getNodePos(id) {
+            var n = nodeMap[id];
+            return n ? { x: n.x, y: n.y } : { x: 0, y: 0 };
+        }
+
+        function edgePath(d) {
+            var from = getNodePos(d.from);
+            var to = getNodePos(d.to);
+            var midX = (from.x + to.x) / 2;
+            return 'M' + from.x + ',' + from.y + ' Q' + midX + ',' + from.y + ' ' + midX + ',' + (from.y + to.y)/2 + ' Q' + midX + ',' + to.y + ' ' + to.x + ',' + to.y;
+        }
+
+        function renderNodes() {
+            gNodes.innerHTML = '';
+            graph.nodes.forEach(function(n) {
+                var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'rg-node rg-node--' + n.type);
+                g.setAttribute('data-id', n.id);
+                g.setAttribute('transform', 'translate(' + n.x + ',' + n.y + ')');
+                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', n.type === 'conclusion' ? 20 : 16);
+                circle.setAttribute('class', 'rg-node__circle');
+                var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('class', 'rg-node__label');
+                label.setAttribute('y', 28);
+                label.textContent = n.label;
+                g.appendChild(circle);
+                g.appendChild(label);
+                gNodes.appendChild(g);
+            });
+        }
+
+        function renderEdges() {
+            gEdges.innerHTML = '';
+            graph.edges.forEach(function(e) {
+                var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', edgePath(e));
+                path.setAttribute('class', 'rg-edge');
+                path.setAttribute('data-from', e.from);
+                path.setAttribute('data-to', e.to);
+                path.setAttribute('marker-end', 'url(#arrow)');
+                gEdges.appendChild(path);
+            });
+        }
+
+        function updateIsolate() {
+            var id = state.isolated;
+            var dimIds = {};
+            if (id) {
+                var reachable = {};
+                reachable[id] = true;
+                var queue = [id];
+                while (queue.length) {
+                    var cur = queue.shift();
+                    graph.edges.forEach(function(ed) {
+                        if (ed.from === cur && !reachable[ed.to]) { reachable[ed.to] = true; queue.push(ed.to); }
+                        if (ed.to === cur && !reachable[ed.from]) { reachable[ed.from] = true; queue.push(ed.from); }
+                    });
+                }
+                graph.nodes.forEach(function(n) { if (!reachable[n.id]) dimIds[n.id] = true; });
+                graph.edges.forEach(function(ed) {
+                    if (!reachable[ed.from] || !reachable[ed.to]) dimIds[ed.from + '-' + ed.to] = true;
+                });
+            }
+            gNodes.querySelectorAll('.rg-node').forEach(function(el) {
+                el.classList.toggle('isolate-dim', !!dimIds[el.dataset.id]);
+            });
+            gEdges.querySelectorAll('.rg-edge').forEach(function(el) {
+                var key = el.dataset.from + '-' + el.dataset.to;
+                el.classList.toggle('isolate-dim', !!dimIds[key]);
+            });
+        }
+
+        function showTooltip(text, role, x, y) {
+            var roleEl = role ? '<div class="rg-tooltip__role">' + role + '</div>' : '';
+            tooltip.innerHTML = roleEl + '<div>' + text + '</div>';
+            tooltip.classList.add('visible');
+            var rect = tooltip.getBoundingClientRect();
+            var dx = x + 16;
+            var dy = y - 8;
+            if (dx + rect.width > window.innerWidth) dx = x - rect.width - 16;
+            if (dy + rect.height > window.innerHeight) dy = window.innerHeight - rect.height - 12;
+            if (dy < 12) dy = 12;
+            tooltip.style.left = dx + 'px';
+            tooltip.style.top = dy + 'px';
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('visible');
+        }
+
+        function nodeRoleLabel(type) {
+            if (state.mode === 'justify') {
+                return type === 'premise' ? 'Evidence' : type === 'rule' ? 'Warrant' : 'Conclusion';
+            }
+            return type === 'premise' ? 'Premise' : type === 'rule' ? 'Rule' : 'Conclusion';
+        }
+
+        gNodes.addEventListener('mouseenter', function(e) {
+            var g = e.target.closest('.rg-node');
+            if (!g) return;
+            var id = g.dataset.id;
+            var n = nodeMap[id];
+            if (!n) return;
+            g.classList.add('active');
+            showTooltip(n.role, nodeRoleLabel(n.type), e.clientX, e.clientY);
+        });
+        gNodes.addEventListener('mouseleave', function(e) {
+            var g = e.target.closest('.rg-node');
+            if (g) g.classList.remove('active');
+            hideTooltip();
+        });
+        gNodes.addEventListener('mousemove', function(e) {
+            var g = e.target.closest('.rg-node');
+            if (!g || !tooltip.classList.contains('visible')) return;
+            var rect = tooltip.getBoundingClientRect();
+            var dx = e.clientX + 16;
+            var dy = e.clientY - 8;
+            if (dx + rect.width > window.innerWidth) dx = e.clientX - rect.width - 16;
+            if (dy + rect.height > window.innerHeight) dy = window.innerHeight - rect.height - 12;
+            if (dy < 12) dy = 12;
+            tooltip.style.left = dx + 'px';
+            tooltip.style.top = dy + 'px';
+        });
+        gNodes.addEventListener('click', function(e) {
+            var g = e.target.closest('.rg-node');
+            if (!g) return;
+            var id = g.dataset.id;
+            state.isolated = state.isolated === id ? null : id;
+            updateIsolate();
+        });
+
+        document.querySelectorAll('.rg-toggle button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.rg-toggle button').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                state.mode = this.dataset.mode;
+            });
+        });
+
+        // Parallax
+        panel.setAttribute('data-parallax', 'true');
+        panel.addEventListener('mousemove', function(e) {
+            var rect = panel.getBoundingClientRect();
+            var cx = rect.left + rect.width / 2;
+            var cy = rect.top + rect.height / 2;
+            var dx = (e.clientX - cx) / rect.width;
+            var dy = (e.clientY - cy) / rect.height;
+            var strength = 8;
+            svgWrap.style.setProperty('--px', (dx * strength) + 'px');
+            svgWrap.style.setProperty('--py', (dy * strength) + 'px');
+        });
+        panel.addEventListener('mouseleave', function() {
+            svgWrap.style.setProperty('--px', '0');
+            svgWrap.style.setProperty('--py', '0');
+        });
+
+        // Step-by-step build + pulse along edges
+        function runSequence() {
+            buildBtn.disabled = true;
+            state.built = [];
+            gNodes.querySelectorAll('.rg-node').forEach(function(el) {
+                el.style.opacity = '0';
+                el.classList.remove('reached');
+            });
+            gEdges.querySelectorAll('.rg-edge').forEach(function(el) {
+                el.style.opacity = '0';
+            });
+            gPulses.innerHTML = '';
+
+            var delay = 0;
+            var stepMs = 420;
+
+            function showNode(id) {
+                var el = gNodes.querySelector('.rg-node[data-id="' + id + '"]');
+                if (el) {
+                    el.style.transition = 'opacity 0.35s ease';
+                    el.style.opacity = '1';
+                }
+            }
+
+            function showEdge(from, to) {
+                var path = gEdges.querySelector('.rg-edge[data-from="' + from + '"][data-to="' + to + '"]');
+                if (path) path.style.opacity = '1';
+            }
+
+            function runPulse(from, to, cb) {
+                var pathD = edgePath({ from: from, to: to });
+                var pulse = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pulse.setAttribute('d', pathD);
+                pulse.setAttribute('class', 'rg-pulse');
+                gPulses.appendChild(pulse);
+                var len = pulse.getTotalLength();
+                pulse.style.strokeDasharray = len + ' ' + len;
+                pulse.style.strokeDashoffset = len + '';
+                pulse.getBoundingClientRect();
+                pulse.style.transition = 'stroke-dashoffset 0.52s ease-out';
+                pulse.style.strokeDashoffset = '0';
+                setTimeout(function() {
+                    pulse.remove();
+                    if (cb) cb();
+                }, 560);
+            }
+
+            graph.edges.forEach(function(ed) {
+                setTimeout(function() {
+                    showNode(ed.from);
+                    showNode(ed.to);
+                    showEdge(ed.from, ed.to);
+                    runPulse(ed.from, ed.to);
+                }, delay);
+                delay += stepMs;
+            });
+
+            setTimeout(function() {
+                graph.nodes.forEach(function(n) { showNode(n.id); });
+                var concl = gNodes.querySelector('.rg-node[data-id="c1"]');
+                if (concl) concl.classList.add('reached');
+                setTimeout(function() {
+                    buildBtn.disabled = false;
+                }, 400);
+            }, delay);
+        }
+
+        buildBtn.addEventListener('click', runSequence);
+
+        renderEdges();
+        renderNodes();
+    })();
+    </script>
+</body>
+</html>

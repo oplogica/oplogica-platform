@@ -1,0 +1,14 @@
+{
+  "ledger": {
+    "guidedDemoBtn": "▶ Rehberli Demo",
+    "explanationTimeline": "Bu zaman çizelgesi, her kararın nasıl izlendiğini ve sonradan doğrulandığını gösterir.",
+    "explanationIntentOutcome": "Beyan edilen niyet, gözlemlenen sonuçla karşılaştırılır. Uyum, kararın belirtilen politika ile eşleştiği anlamına gelir.",
+    "explanationReasonGraph": "Gerekçe grafiği, öncüller, kurallar ve sonuçların nasıl bağlandığını gösterir. Her karar mantığına kadar izlenebilir.",
+    "explanationAudit": "Denetim hazırlığı, her kararın harici doğrulama için eksiksiz bir kanıt paketine (Gerekçe Grafiği, Niyet Kanıtı, imzalar ve zamansal sıra) sahip olup olmadığını gösterir.",
+    "demoStepTimeline": "Karar Zaman Çizelgesi",
+    "demoStepIntentOutcome": "Niyet ve Sonuç",
+    "demoStepReasonGraph": "Gerekçe Grafiği",
+    "demoStepAudit": "Denetim Hazırlığı",
+    "explanationDismiss": "Kapat"
+  }
+}

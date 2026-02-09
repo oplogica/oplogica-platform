@@ -1,0 +1,14 @@
+{
+  "ledger": {
+    "guidedDemoBtn": "▶ Guided Demo",
+    "explanationTimeline": "This timeline shows how each decision is tracked and later verified.",
+    "explanationIntentOutcome": "Declared intent is compared with the observed outcome. Alignment means the decision matched the stated policy.",
+    "explanationReasonGraph": "The reason graph shows how premises, rules, and conclusions connect. Each decision can be traced back to its logic.",
+    "explanationAudit": "Audit readiness indicates whether every decision has a complete proof bundle (Reason Graph, Proof of Intent, signatures, and temporal order) for external verification.",
+    "demoStepTimeline": "Decision Timeline",
+    "demoStepIntentOutcome": "Intent vs Outcome",
+    "demoStepReasonGraph": "Reason Graph",
+    "demoStepAudit": "Audit Readiness",
+    "explanationDismiss": "Dismiss"
+  }
+}

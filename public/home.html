@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpLogica - AI-Powered Decision Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/chat-widget.css">
+</head>
+<body>
+    <div id="app">
+        <div id="landing-page" class="page active">
+            <nav class="landing-nav">
+                <div class="nav-logo">
+                    <svg class="logo-icon" viewBox="0 0 40 40">
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
+                        <path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                        <defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs>
+                    </svg>
+                    <span class="logo-text">OpLogica</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#pricing">Pricing</a>
+                </div>
+                <div class="nav-actions">
+                    <button class="btn-ghost" onclick="showPage('login-page')">Sign In</button>
+                    <button class="btn-primary" onclick="showPage('register-page')">Get Started</button>
+                </div>
+            </nav>
+
+            <section class="hero">
+                <div class="hero-bg">
+                    <div class="grid-lines"></div>
+                    <div class="glow-orb orb-1"></div>
+                    <div class="glow-orb orb-2"></div>
+                </div>
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        AI-Powered Decision Intelligence
+                    </div>
+                    <h1 class="hero-title">
+                        Make <span class="gradient-text">Smarter</span> Decisions<br>
+                        with <span class="gradient-text">Verified</span> Logic
+                    </h1>
+                    <p class="hero-subtitle">
+                        OpLogica combines advanced AI models to analyze your decisions, 
+                        verify logical soundness, and provide actionable insights with 
+                        cryptographic proof of reasoning.
+                    </p>
+                    <div class="hero-cta">
+                        <button class="btn-primary btn-large" onclick="showPage('register-page')">
+                            Start Free Trial
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                        <button class="btn-ghost btn-large">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                            Watch Demo
+                        </button>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat"><span class="stat-value">98%</span><span class="stat-label">Accuracy Rate</span></div>
+                        <div class="stat"><span class="stat-value">50K+</span><span class="stat-label">Decisions Analyzed</span></div>
+                        <div class="stat"><span class="stat-value">2.5s</span><span class="stat-label">Avg. Response</span></div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="dashboard-preview">
+                        <div class="preview-header">
+                            <div class="preview-dots"><span></span><span></span><span></span></div>
+                            <span class="preview-title">OpLogica Dashboard</span>
+                        </div>
+                        <div class="preview-content">
+                            <div class="preview-sidebar">
+                                <div class="sidebar-item active"></div>
+                                <div class="sidebar-item"></div>
+                                <div class="sidebar-item"></div>
+                                <div class="sidebar-item"></div>
+                            </div>
+                            <div class="preview-main">
+                                <div class="preview-card trust-ring">
+                                    <div class="ring-visual">
+                                        <svg viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" r="40" fill="none" stroke="#1a2332" stroke-width="8"/>
+                                            <circle cx="50" cy="50" r="40" fill="none" stroke="url(#ringGradient)" stroke-width="8" stroke-dasharray="213" stroke-dashoffset="32" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                                            <defs><linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00FF88"/><stop offset="100%" style="stop-color:#00D9FF"/></linearGradient></defs>
+                                        </svg>
+                                        <span class="ring-value">85</span>
+                                    </div>
+                                    <span class="card-label">Trust Score</span>
+                                </div>
+                                <div class="preview-metrics">
+                                    <div class="metric"><span class="metric-value">92%</span><span class="metric-label">Accuracy</span></div>
+                                    <div class="metric"><span class="metric-value">1.2s</span><span class="metric-label">Response</span></div>
+                                </div>
+                                <div class="preview-chart">
+                                    <svg viewBox="0 0 200 60">
+                                        <path d="M0,50 Q25,45 50,30 T100,35 T150,20 T200,25" fill="none" stroke="url(#chartGradient)" stroke-width="2"/>
+                                        <defs><linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="features-section">
+                <div class="section-header">
+                    <span class="section-tag">Features</span>
+                    <h2>Intelligent Decision Analysis</h2>
+                    <p>Powered by multiple AI models working in harmony</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44"/></svg></div>
+                        <h3>Dual AI Analysis</h3>
+                        <p>Claude and GPT-4 work together to provide comprehensive, unbiased analysis of your decisions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+                        <h3>Proof of Reason</h3>
+                        <p>Every analysis comes with cryptographic verification, ensuring transparency and accountability.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                        <h3>Decision Replay</h3>
+                        <p>Review and replay past decisions with full context preservation and learning insights.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg></div>
+                        <h3>Trust Scoring</h3>
+                        <p>Get a quantified trust score based on logical soundness, evidence quality, and reasoning depth.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="how-it-works" class="how-section">
+                <div class="section-header">
+                    <span class="section-tag">Process</span>
+                    <h2>How OpLogica Works</h2>
+                    <p>Three simple steps to better decisions</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">01</div>
+                        <div class="step-content"><h3>Input Your Decision</h3><p>Describe your decision, question, or scenario. Add context, constraints, and objectives.</p></div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step">
+                        <div class="step-number">02</div>
+                        <div class="step-content"><h3>AI Analysis</h3><p>Multiple AI models analyze your input, checking for biases, logical fallacies, and opportunities.</p></div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step">
+                        <div class="step-number">03</div>
+                        <div class="step-content"><h3>Get Verified Insights</h3><p>Receive actionable recommendations with trust scores and cryptographic proof of reasoning.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cta-section">
+                <div class="cta-content">
+                    <h2>Ready to Make Better Decisions?</h2>
+                    <p>Join thousands of individuals and organizations using OpLogica for smarter, verified decision-making.</p>
+                    <button class="btn-primary btn-large" onclick="showPage('register-page')">Start Your Free Trial</button>
+                </div>
+            </section>
+
+            <footer class="landing-footer">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <div class="nav-logo">
+                            <svg class="logo-icon" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="url(#logoGradient2)" stroke-width="2"/><path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/><defs><linearGradient id="logoGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs></svg>
+                            <span class="logo-text">OpLogica</span>
+                        </div>
+                        <p>AI-Powered Decision Intelligence</p>
+                    </div>
+                    <div class="footer-links">
+                        <div class="footer-column"><h4>Product</h4><a href="#">Features</a><a href="#">Pricing</a><a href="#">API</a></div>
+                        <div class="footer-column"><h4>Company</h4><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a></div>
+                        <div class="footer-column"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+                    </div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2025 OpLogica. Part of the Mo817 Framework.</p></div>
+            </footer>
+        </div>
+
+        <div id="login-page" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <button class="back-btn" onclick="showPage('landing-page')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+                    <div class="auth-header">
+                        <svg class="auth-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="url(#authGradient)" stroke-width="2"/><path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/><defs><linearGradient id="authGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs></svg>
+                        <h1>Welcome Back</h1>
+                        <p>Sign in to your OpLogica account</p>
+                    </div>
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" placeholder="you@example.com" required></div>
+                        <div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" placeholder="••••••••" required></div>
+                        <button type="submit" class="btn-primary btn-full">Sign In</button>
+                    </form>
+                    <div class="auth-footer"><p>Don't have an account? <a href="#" onclick="showPage('register-page')">Sign Up</a></p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="register-page" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <button class="back-btn" onclick="showPage('landing-page')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+                    <div class="auth-header">
+                        <svg class="auth-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="url(#authGradient2)" stroke-width="2"/><path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/><defs><linearGradient id="authGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs></svg>
+                        <h1>Create Account</h1>
+                        <p>Start your journey to smarter decisions</p>
+                    </div>
+                    <div id="user-type-selection" class="user-type-grid">
+                        <div class="user-type-card" data-type="individual" onclick="selectUserType('individual')"><div class="type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><h3>Individual</h3><p>Personal decision-making</p></div>
+                        <div class="user-type-card" data-type="researcher" onclick="selectUserType('researcher')"><div class="type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><h3>Researcher</h3><p>Academic & scientific analysis</p></div>
+                        <div class="user-type-card" data-type="business" onclick="selectUserType('business')"><div class="type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="2" y="10" width="20" height="10" rx="2"/></svg></div><h3>Business</h3><p>Company & team decisions</p></div>
+                        <div class="user-type-card" data-type="institution" onclick="selectUserType('institution')"><div class="type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg></div><h3>Institution</h3><p>Government & NGO</p></div>
+                    </div>
+                    <form id="register-form" class="auth-form hidden">
+                        <input type="hidden" id="user-type" value="">
+                        <div class="selected-type-badge"><span id="selected-type-text"></span><button type="button" onclick="resetUserType()">Change</button></div>
+                        <div class="form-group"><label for="register-name">Full Name</label><input type="text" id="register-name" placeholder="John Doe" required></div>
+                        <div class="form-group"><label for="register-email">Email</label><input type="email" id="register-email" placeholder="you@example.com" required></div>
+                        <div class="form-group"><label for="register-password">Password</label><input type="password" id="register-password" placeholder="••••••••" required minlength="8"></div>
+                        <button type="submit" class="btn-primary btn-full">Create Account</button>
+                    </form>
+                    <div class="auth-footer"><p>Already have an account? <a href="#" onclick="showPage('login-page')">Sign In</a></p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-page" class="page">
+            <div class="dashboard-layout">
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <svg class="sidebar-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="url(#sidebarGradient)" stroke-width="2"/><path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/><defs><linearGradient id="sidebarGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00D9FF"/><stop offset="100%" style="stop-color:#00FF88"/></linearGradient></defs></svg>
+                        <span class="sidebar-title">OpLogica</span>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="#" class="nav-item active" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Overview</span></a>
+                        <a href="#" class="nav-item" data-view="analyze"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44"/></svg><span>Analyze</span></a>
+                        <a href="#" class="nav-item" data-view="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg><span>History</span></a>
+                        <a href="#" class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Settings</span></a>
+                    </nav>
+                    <div class="sidebar-footer">
+                        <div class="user-profile"><div class="user-avatar" id="user-avatar">U</div><div class="user-info"><span class="user-name" id="user-name">User</span><span class="user-type-label" id="user-type-label">Individual</span></div></div>
+                        <button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+                    </div>
+                </aside>
+                <main class="main-content">
+                    <header class="content-header">
+                        <div class="header-left"><h1 id="page-title">Overview</h1><p id="page-subtitle">Welcome back! Here's your decision intelligence summary.</p></div>
+                        <div class="header-right"><button class="btn-primary" onclick="switchView('analyze')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New Analysis</button></div>
+                    </header>
+                    <div id="overview-view" class="dashboard-view active">
+                        <div class="stats-grid">
+                            <div class="stat-card"><div class="stat-card-header"><span class="stat-card-title">Trust Score</span><div class="stat-trend up">+5%</div></div><div class="trust-ring-container"><svg class="trust-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#1a2332" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="url(#trustGradient)" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="47" stroke-linecap="round" transform="rotate(-90 60 60)"/><defs><linearGradient id="trustGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00FF88"/><stop offset="100%" style="stop-color:#00D9FF"/></linearGradient></defs></svg><span class="trust-value">85</span></div></div>
+                            <div class="stat-card"><div class="stat-card-header"><span class="stat-card-title">Neural Accuracy</span></div><div class="stat-value-large">92%</div><div class="stat-subtitle">Based on verified outputs</div></div>
+                            <div class="stat-card"><div class="stat-card-header"><span class="stat-card-title">Response Time</span></div><div class="stat-value-large">1.2s</div><div class="stat-subtitle">Average analysis time</div></div>
+                            <div class="stat-card"><div class="stat-card-header"><span class="stat-card-title">Error Rate</span></div><div class="stat-value-large error">3%</div><div class="stat-subtitle">Minimal inconsistencies</div></div>
+                        </div>
+                    </div>
+                    <div id="analyze-view" class="dashboard-view">
+                        <div class="analyze-container">
+                            <div class="analyze-input-section">
+                                <div class="input-card">
+                                    <h3>Decision Analysis</h3>
+                                    <p>Enter your decision, question, or scenario for AI analysis</p>
+                                    <div class="analysis-type-selector">
+                                        <button class="type-btn active" data-type="decision">Decision</button>
+                                        <button class="type-btn" data-type="research">Research</button>
+                                        <button class="type-btn" data-type="business">Business</button>
+                                    </div>
+                                    <textarea id="analysis-input" placeholder="Describe your decision or question here..."></textarea>
+                                    <div class="model-selector">
+                                        <label>AI Model:</label>
+                                        <div class="model-options">
+                                            <label class="model-option"><input type="radio" name="model" value="claude" checked><span class="model-badge claude">Claude</span></label>
+                                            <label class="model-option"><input type="radio" name="model" value="gpt"><span class="model-badge gpt">GPT-4</span></label>
+                                            <label class="model-option"><input type="radio" name="model" value="both"><span class="model-badge both">Both</span></label>
+                                        </div>
+                                    </div>
+                                    <button class="btn-primary btn-full" onclick="runAnalysis()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>Run Analysis</button>
+                                </div>
+                            </div>
+                            <div class="analyze-output-section">
+                                <div class="output-card" id="analysis-output">
+                                    <div class="output-placeholder">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44"/></svg>
+                                        <h4>Ready to Analyze</h4>
+                                        <p>Enter your decision and click "Run Analysis" to get AI-powered insights</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="history-view" class="dashboard-view">
+                        <div class="history-container"><div class="history-filters"><input type="text" placeholder="Search decisions..." class="search-input"><select class="filter-select"><option>All Types</option><option>Decision</option><option>Research</option><option>Business</option></select></div><div class="history-list" id="history-list"></div></div>
+                    </div>
+                    <div id="settings-view" class="dashboard-view">
+                        <div class="settings-container">
+                            <div class="settings-section"><h3>Profile Settings</h3><div class="settings-form"><div class="form-group"><label>Full Name</label><input type="text" id="settings-name" placeholder="Your name"></div><div class="form-group"><label>Email</label><input type="email" id="settings-email" placeholder="Your email" disabled></div><button class="btn-primary">Save Changes</button></div></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay hidden"><div class="loader"><div class="loader-ring"></div><span>Analyzing...</span></div></div>
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html>

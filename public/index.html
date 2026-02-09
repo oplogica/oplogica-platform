@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpLogica - AI Decision Intelligence Platform</title>
+    <meta name="description" content="Advanced AI platform for researchers, businesses, and governments. Analyze decisions, verify logic, and get actionable insights.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --bg-primary: #050608;
+            --bg-secondary: #0a0d12;
+            --bg-card: #0f1318;
+            --bg-input: #141a22;
+            --bg-hover: #1a222d;
+            --text-primary: #f0f4f8;
+            --text-secondary: #8899a8;
+            --text-muted: #5a6a7a;
+            --accent-cyan: #00D9FF;
+            --accent-green: #00FF88;
+            --accent-purple: #a855f7;
+            --accent-orange: #ff8c42;
+            --accent-red: #ff4757;
+            --border-color: #1e2a3a;
+            --gradient-primary: linear-gradient(135deg, #00D9FF 0%, #00FF88 100%);
+            --gradient-hero: radial-gradient(ellipse at 50% 0%, rgba(0, 217, 255, 0.15) 0%, transparent 50%);
+            --glow-cyan: 0 0 40px rgba(0, 217, 255, 0.3);
+            --glow-green: 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body { 
+            font-family: 'Outfit', 'IBM Plex Sans Arabic', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        body.rtl { 
+            direction: rtl; 
+            font-family: 'IBM Plex Sans Arabic', 'Outfit', sans-serif; 
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(5, 6, 8, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .navbar.scrolled {
+            border-bottom-color: var(--border-color);
+            padding: 12px 40px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .nav-logo svg { width: 36px; height: 36px; }
+        
+        .nav-logo span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-link:hover { color: var(--text-primary); }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .lang-toggle {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .lang-btn {
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover { color: var(--text-primary); }
+        .lang-btn.active { background: var(--accent-cyan); color: var(--bg-primary); }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-ghost:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 217, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 100%;
+            background: var(--gradient-hero);
+            pointer-events: none;
+        }
+        
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+        
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-text { max-width: 600px; }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease 0.1s backwards;
+        }
+        
+        .hero-title .gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.7;
+            animation: fadeInUp 0.6s ease 0.2s backwards;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            animation: fadeInUp 0.6s ease 0.3s backwards;
+        }
+        
+        .hero-buttons .btn { padding: 14px 28px; font-size: 1rem; }
+        
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s ease 0.4s backwards;
+        }
+        
+        .stat-item {}
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label { font-size: 0.9rem; color: var(--text-muted); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Auth Card */
+        .hero-auth {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            animation: fadeInUp 0.6s ease 0.3s backwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-auth::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+        }
+        
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--bg-input);
+            padding: 4px;
+            border-radius: 12px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .auth-tab.active {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+        
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        
+        .form-group { margin-bottom: 20px; }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+        
+        .form-input::placeholder { color: var(--text-muted); }
+        
+        .auth-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        
+        .auth-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-cyan);
+        }
+        
+        .auth-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .auth-error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .auth-error.show { display: block; }
+        
+        .auth-success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .auth-success.show { display: block; }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .demo-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .demo-btn:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        /* Control Core Hero */
+        .hero-control-core {
+            padding: 120px 40px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-control-core .cc-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+        .hero-control-core .cc-text { max-width: 560px; }
+        .hero-control-core .cc-headline {
+            font-size: 2.75rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        .hero-control-core .cc-headline .cc-tm { font-size: 0.65em; vertical-align: super; opacity: 0.9; }
+        .hero-control-core .cc-subheadline {
+            font-size: 1.25rem;
+            color: var(--accent-cyan);
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .hero-control-core .cc-body {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .hero-control-core .cc-ctas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .hero-control-core .cc-ctas .btn {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+        }
+        .hero-control-core .cc-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .hero-control-core .cc-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .hero-control-core .cc-badge:hover { border-color: rgba(0, 217, 255, 0.4); color: var(--text-primary); }
+        .cc-card-wrap {
+            position: relative;
+            border-radius: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 1px rgba(0, 217, 255, 0.08), 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .cc-card-wrap:hover {
+            transform: perspective(900px) rotateX(2deg) rotateY(-3deg);
+            box-shadow: 0 0 24px rgba(0, 217, 255, 0.15), 0 0 0 1px rgba(0, 217, 255, 0.12), 0 24px 48px rgba(0, 0, 0, 0.35);
+        }
+        .cc-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .cc-card .cc-img-wrap {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .cc-card .cc-img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+        }
+        .cc-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+        .cc-card .cc-preview-label {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 14px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 217, 255, 0.35);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        .cc-card-wrap:hover .cc-preview-label { opacity: 1; }
+        @media (max-width: 900px) {
+            .hero-control-core .cc-inner {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .hero-control-core .cc-text { max-width: none; }
+            .hero-control-core .cc-headline { font-size: 2.25rem; }
+        }
+
+        /* Features Section */
+        .section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+        
+        .section-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+        }
+        
+        .feature-card:hover::before { opacity: 1; }
+        
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Audience Section */
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .audience-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .audience-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-8px);
+            box-shadow: var(--glow-cyan);
+        }
+        
+        .audience-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .audience-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .audience-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .audience-features {
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .audience-features li {
+            padding: 6px 0;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .audience-features li::before {
+            content: '✓';
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Pricing Section */
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        
+        .pricing-toggle span {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .pricing-toggle span.active { color: var(--text-primary); font-weight: 600; }
+        
+        .toggle-switch {
+            width: 56px;
+            height: 28px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.yearly::before { transform: translateX(28px); }
+        .toggle-switch.yearly { background: rgba(0, 217, 255, 0.2); border-color: var(--accent-cyan); }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            align-items: start;
+        }
+        
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--accent-cyan);
+            transform: scale(1.05);
+            z-index: 1;
+        }
+        
+        .pricing-card.featured::before { content: none; }
+        .pricing-featured-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 16px;
+            background: var(--gradient-primary);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--bg-primary);
+        }
+        
+        .pricing-card:hover:not(.featured) {
+            border-color: rgba(0, 217, 255, 0.5);
+            transform: translateY(-4px);
+        }
+        
+        .pricing-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .pricing-price .currency { font-size: 1.5rem; vertical-align: top; }
+        .pricing-price .period { font-size: 1rem; font-weight: 400; color: var(--text-muted); }
+        
+        .pricing-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            min-height: 44px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pricing-features li:last-child { border-bottom: none; }
+        
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .pricing-features li.disabled {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        
+        .pricing-features li.disabled::before {
+            content: '✗';
+            color: var(--text-muted);
+        }
+        
+        .pricing-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pricing-btn.primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: var(--bg-primary);
+        }
+        
+        .pricing-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .pricing-btn:hover { transform: translateY(-2px); }
+        .pricing-btn.primary:hover { box-shadow: var(--glow-cyan); }
+        .pricing-btn.secondary:hover { border-color: var(--accent-cyan); }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 40px;
+            background: var(--bg-secondary);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        
+        .cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .cta-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 40px 30px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+        
+        .footer-brand {}
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-logo svg { width: 32px; height: 32px; }
+        
+        .footer-logo span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+        .footer-desc a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        .footer-desc a:hover { text-decoration: underline; }
+        
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .social-link:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        
+        .footer-column h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li { margin-bottom: 12px; }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover { color: var(--accent-cyan); }
+        
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        
+        .footer-legal-block {
+            margin: 0;
+        }
+
+        /* Research & Framework Sections */
+        .section-dark {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            position: relative;
+        }
+        .proof-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .proof-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            transition: all 0.35s;
+            position: relative;
+            overflow: hidden;
+        }
+        .proof-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .proof-card:nth-child(1)::before { background: linear-gradient(90deg, #00D9FF, #00a8cc); }
+        .proof-card:nth-child(2)::before { background: linear-gradient(90deg, #00FF88, #00c968); }
+        .proof-card:nth-child(3)::before { background: linear-gradient(90deg, #a855f7, #7c3aed); }
+        .proof-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .proof-card:hover::before { opacity: 1; }
+        .proof-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .proof-card:nth-child(1) .proof-icon { background: rgba(0, 217, 255, 0.15); }
+        .proof-card:nth-child(2) .proof-icon { background: rgba(0, 255, 136, 0.15); }
+        .proof-card:nth-child(3) .proof-icon { background: rgba(168, 85, 247, 0.15); }
+        .proof-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        .proof-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+        .research-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .research-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .research-stat:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+        }
+        .research-stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+        .research-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .quote-block {
+            max-width: 780px;
+            margin: 0 auto 40px;
+            padding: 36px 44px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.06), rgba(0, 255, 136, 0.06));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            border-left: 4px solid var(--accent-cyan);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        .quote-block strong { color: var(--text-primary); }
+        .paper-box {
+            max-width: 820px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 44px;
+        }
+        .paper-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .paper-abstract {
+            font-size: 0.98rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 20px;
+        }
+        .paper-keywords {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .paper-keywords span {
+            display: inline-block;
+            margin: 4px 8px 4px 0;
+            padding: 6px 12px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            color: var(--text-secondary);
+        }
+        .comparison-note {
+            max-width: 680px;
+            margin: 32px auto 0;
+            padding: 24px 28px;
+            background: rgba(0, 255, 136, 0.06);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .layer-list {
+            list-style: none;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+        .layer-list li {
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+        .layer-list li strong { color: var(--accent-cyan); min-width: 100px; }
+        @media (max-width: 1024px) {
+            .proof-grid { grid-template-columns: 1fr; }
+            .research-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .research-stats { grid-template-columns: 1fr; }
+            .quote-block { padding: 24px 20px; font-size: 1rem; }
+            .paper-box { padding: 28px 24px; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .hero-content { grid-template-columns: 1fr; gap: 48px; }
+            .hero-text { max-width: 100%; text-align: center; }
+            .hero-buttons { justify-content: center; }
+            .hero-stats { justify-content: center; }
+            .hero-auth { max-width: 500px; margin: 0 auto; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .audience-grid { grid-template-columns: repeat(2, 1fr); }
+            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+            .pricing-card.featured { transform: none; }
+            .footer-grid { grid-template-columns: 2fr 1fr; }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 20px; }
+            .nav-links { display: none; }
+            .hero { padding: 100px 20px 60px; }
+            .hero-title { font-size: 2.2rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .hero-buttons { flex-direction: column; }
+            .hero-stats { flex-wrap: wrap; gap: 24px; }
+            .section { padding: 60px 20px; }
+            .section-title { font-size: 1.8rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .audience-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+        }
+    </style>
+<script>if(window.location.hash === '#verified=true') { setTimeout(() => { alert('Email verified! You can now sign in.'); }, 500); }</script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="nav-logo">
+            <svg viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="url(#navGrad)" stroke-width="2"/>
+                <path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00D9FF"/>
+                        <stop offset="100%" stop-color="#00FF88"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span>OpLogica</span>
+        </a>
+        
+        <div class="nav-links">
+            <a href="#features" class="nav-link" data-i18n="navFeatures">Features</a>
+            <a href="#framework" class="nav-link" data-i18n="navFramework">Framework</a>
+            <a href="#research" class="nav-link" data-i18n="navResearch">Research</a>
+            <a href="#audience" class="nav-link" data-i18n="navSolutions">Application Domains</a>
+            <a href="/chat" class="nav-link" data-i18n="navChat">Chat</a>
+        </div>
+        
+        <div class="nav-actions">
+            <div class="lang-toggle">
+                <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+                <button class="lang-btn" onclick="setLanguage('ar')">عربي</button>
+                <button class="lang-btn" onclick="setLanguage('tr')">TR</button>
+            </div>
+            <a href="/docs" class="btn btn-ghost" data-i18n="navDocs">Documentation</a>
+            <a href="/demo" class="btn btn-primary" data-i18n="navDemo">Try Demo</a>
+            <button class="mobile-menu-btn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Control Core Hero -->
+    <section class="hero-control-core" id="control-core-hero" aria-label="Control Core Hero">
+        <div class="cc-inner">
+            <div class="cc-text">
+                <h2 class="cc-headline" data-i18n="ccHeadline">Control Core</h2>
+                <p class="cc-subheadline" data-i18n="ccSubheadline">Real-time decision accountability — visualized, verifiable, and export-ready.</p>
+                <p class="cc-body" data-i18n="ccBody">A live interface that turns decisions into auditable proof bundles: Intent → Reason → Operation.</p>
+                <div class="cc-ctas">
+                    <a href="/demo" class="btn btn-primary" data-i18n="ccTryDemo">Try Live Demo</a>
+                    <a href="/docs" class="btn btn-ghost" data-i18n="ccReadDocs">Read Documentation</a>
+                </div>
+                <div class="cc-badges">
+                    <span class="cc-badge" data-i18n="ccBadgePoI">Proof of Intent (PoI)</span>
+                    <span class="cc-badge" data-i18n="ccBadgePoR">Proof of Reason (PoR)</span>
+                    <span class="cc-badge" data-i18n="ccBadgePoO">Proof of Operation (PoO)</span>
+                    <span class="cc-badge" data-i18n="ccBadgeRT">Real-time (WS)</span>
+                    <span class="cc-badge" data-i18n="ccBadge3D">3D Reason Graph</span>
+                </div>
+            </div>
+            <div class="cc-card-wrap">
+                <div class="cc-card">
+                    <div class="cc-img-wrap">
+                        <img src="/assets/hero/control-core.png" alt="OpLogica Control Core interface" width="800" height="480" loading="eager" fetchpriority="high">
+                        <span class="cc-preview-label" data-i18n="ccPreviewLabel">Interactive Preview</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span data-i18n="heroBadge">AI-Powered Decision Intelligence</span>
+                </div>
+                <h1 class="hero-title">
+                    <span data-i18n="heroTitle1">Make Smarter</span><br>
+                    <span class="gradient" data-i18n="heroTitle2">Decisions with AI</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="heroSubtitle">
+                    The first platform to operationalize AI accountability as a formal, verifiable property. 
+                    Triadic Verification (Proof of Operation, Reason, and Intent) gives you justified decisions—not just explanations—backed by peer-reviewed research and cryptographic guarantees.
+                </p>
+                <div class="hero-buttons">
+                    <a href="/demo" class="btn btn-primary" data-i18n="heroLiveDemo">Explore Live Demo</a>
+                    <a href="#research" class="btn btn-ghost">
+                        <span data-i18n="heroReadPaper">Read the Paper</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label" data-i18n="statAnalyses">Verification Coverage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label" data-i18n="statAccuracy">Auditability</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">99.2%</div>
+                        <div class="stat-label" data-i18n="statCountries">Policy Compliance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <div class="section-badge" data-i18n="featuresBadge">POWERFUL FEATURES</div>
+            <h2 class="section-title" data-i18n="featuresTitle">Everything You Need for Smart Decisions</h2>
+            <p class="section-subtitle" data-i18n="featuresSubtitle">Comprehensive AI toolkit designed for researchers, analysts, and decision-makers.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title" data-i18n="feature1Title">Deep Analysis</h3>
+                <p class="feature-desc" data-i18n="feature1Desc">Multi-layered analysis with evidence-based reasoning and comprehensive insights.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title" data-i18n="feature2Title">Triadic Verification</h3>
+                <p class="feature-desc" data-i18n="feature2Desc">Proof of Operation, Reason, and Intent—cryptographic and logical verification for every analysis.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔬</div>
+                <h3 class="feature-title" data-i18n="feature3Title">Research Mode</h3>
+                <p class="feature-desc" data-i18n="feature3Desc">Academic-level analysis with citations from Semantic Scholar and arXiv.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title" data-i18n="feature4Title">Market Intelligence</h3>
+                <p class="feature-desc" data-i18n="feature4Desc">Real-time market data, stock analysis, and financial insights.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title" data-i18n="feature5Title">Document Analysis</h3>
+                <p class="feature-desc" data-i18n="feature5Desc">Upload PDFs, images, and documents for intelligent extraction and analysis.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3 class="feature-title" data-i18n="feature6Title">Multi-Language</h3>
+                <p class="feature-desc" data-i18n="feature6Desc">Full support for English, Arabic, Turkish, and more languages coming soon.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Triadic Framework Section -->
+    <section class="section section-dark" id="framework">
+        <div class="section-header">
+            <div class="section-badge" data-i18n="frameworkBadge">THE FRAMEWORK</div>
+            <h2 class="section-title" data-i18n="frameworkTitle">Triadic Verification for Accountable AI</h2>
+            <p class="section-subtitle" data-i18n="frameworkSubtitle">OpLogica unifies three dimensions of AI accountability: operational integrity, logical justification, and ethical alignment. No other framework integrates all three.</p>
+        </div>
+        
+        <div class="proof-grid">
+            <div class="proof-card">
+                <div class="proof-icon">🔐</div>
+                <h3 class="proof-title" data-i18n="proofPooTitle">Proof of Operation (PoO)</h3>
+                <p class="proof-desc" data-i18n="proofPooDesc">Cryptographic verification that computational processes executed as specified—without tampering or corruption. SHA3-256 hashing and post-quantum signatures ensure integrity of every decision record.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-icon">📐</div>
+                <h3 class="proof-title" data-i18n="proofPorTitle">Proof of Reason (PoR)</h3>
+                <p class="proof-desc" data-i18n="proofPorDesc">Formal demonstration that decisions follow necessarily from premises and rules. Not just “what features mattered,” but <strong>why the output was the right one</strong> given declared policies and observed data. Reason Graphs connect data, rules, and conclusions.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-icon">🎯</div>
+                <h3 class="proof-title" data-i18n="proofPoiTitle">Proof of Intent (PoI)</h3>
+                <p class="proof-desc" data-i18n="proofPoiDesc">A priori declaration of ethical constraints, cryptographically signed before any decision. Prevents post-hoc rationalization: the system proves that constraints existed before operations and that decisions satisfied them.</p>
+            </div>
+        </div>
+        
+        <div class="quote-block" data-i18n="explanationVsJustification">
+            <strong>Explanation vs. justification:</strong> An explanation describes what influenced a result. A justification demonstrates that, given policy and data, the decision was appropriate. OpLogica provides justifications—verifiable demonstrations that specific decisions followed necessarily from declared constraints and observed data.
+        </div>
+        <div style="text-align: center; margin-top: 32px;">
+            <a href="/docs" style="display: inline-block; padding: 14px 32px; background: rgba(0, 217, 255, 0.1); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 10px; color: #00D9FF; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s;" data-i18n="frameworkDocsLink">📖 Full Technical Documentation</a>
+        </div>
+    </section>
+
+    <!-- Research Results Section -->
+    <section class="section" id="research">
+        <div class="section-header">
+            <div class="section-badge" data-i18n="researchBadge">EMPIRICAL VALIDATION</div>
+            <h2 class="section-title" data-i18n="researchTitle">Evidence-Based Results</h2>
+            <p class="section-subtitle" data-i18n="researchSubtitle">Validated in a medical triage simulation with 1,000 synthetic patient cases. Comparative evaluation against LIME and unverified baseline.</p>
+        </div>
+        
+        <div class="research-stats">
+            <div class="research-stat">
+                <div class="research-stat-value">100%</div>
+                <div class="research-stat-label" data-i18n="stat1Label">Verification coverage (vs 87% LIME)</div>
+            </div>
+            <div class="research-stat">
+                <div class="research-stat-value">98%</div>
+                <div class="research-stat-label" data-i18n="stat2Label">External auditability (vs 71% LIME)</div>
+            </div>
+            <div class="research-stat">
+                <div class="research-stat-value">99.2%</div>
+                <div class="research-stat-label" data-i18n="stat3Label">Policy compliance</div>
+            </div>
+            <div class="research-stat">
+                <div class="research-stat-value">47 ms</div>
+                <div class="research-stat-label" data-i18n="stat4Label">Mean latency per decision</div>
+            </div>
+        </div>
+        
+        <div class="comparison-note" data-i18n="researchNote">
+            Accountability in AI can be operationalized as a <strong>formal, verifiable property</strong>—not a post-hoc aspiration. Just as cryptographic systems provide provable security, OpLogica provides provable accountability.
+        </div>
+        <div style="text-align: center; margin-top: 32px;">
+            <a href="/demo" class="btn btn-primary" style="padding: 12px 28px; border-radius: 8px;" data-i18n="researchDemoLink">🔬 Try the Interactive Triage Demo</a>
+        </div>
+    </section>
+
+    <!-- Research Paper Section -->
+    <section class="section section-dark" id="paper">
+        <div class="section-header">
+            <div class="section-badge" data-i18n="paperBadge">BUILT ON RESEARCH</div>
+            <h2 class="section-title" data-i18n="paperTitle">From Academic Framework to Product</h2>
+            <p class="section-subtitle" data-i18n="paperSubtitle">OpLogica is grounded in peer-reviewed research: a triadic verification framework for accountable AI decision systems.</p>
+        </div>
+        
+        <div class="paper-box">
+            <h3 class="paper-title" data-i18n="paperFullTitle">OpLogica: A Triadic Verification Framework for Accountable AI Decision Systems—Design, Implementation, and Empirical Validation</h3>
+            <p class="paper-abstract" data-i18n="paperAbstract">Artificial intelligence systems increasingly make high-stakes decisions affecting human welfare. Current approaches remain fragmented: post-hoc explanations lack formal guarantees; audit mechanisms capture operations without justifying reasoning. OpLogica unifies three dimensions—Proof of Operation (PoO) for cryptographic integrity, Proof of Reason (PoR) for formal justification of decision logic, and Proof of Intent (PoI) for a priori declaration of ethical constraints. Empirical validation demonstrates 100% verification coverage, 98% external auditability, 99.2% policy compliance, with acceptable computational overhead (47 ms per decision). Accountability can be operationalized as a formal, verifiable property rather than a post-hoc aspiration.</p>
+            <div class="paper-keywords">
+                <span data-i18n="kw1">AI accountability</span>
+                <span data-i18n="kw2">Verification framework</span>
+                <span data-i18n="kw3">Explainable AI</span>
+                <span data-i18n="kw4">Proof-of-reason</span>
+                <span data-i18n="kw5">Algorithmic auditing</span>
+                <span data-i18n="kw6">Post-quantum cryptography</span>
+                <span data-i18n="kw7">Medical AI ethics</span>
+            </div>
+        </div>
+        
+        <div class="section-header" style="margin-top: 56px; margin-bottom: 28px;">
+            <h3 class="section-title" style="font-size: 1.4rem;" data-i18n="archTitle">Architectural Layers</h3>
+        </div>
+        <ul class="layer-list">
+            <li data-i18n="archL4"><strong>L4</strong> Verification Interface — REST/JSON APIs and offline validation</li>
+            <li data-i18n="archL3"><strong>L3</strong> Logic Kernel of Trust — Reason Graphs and Δ-Logic Engine</li>
+            <li data-i18n="archL2"><strong>L2</strong> Witness Consensus — Distributed timestamp federation</li>
+            <li data-i18n="archL1"><strong>L1</strong> Post-Quantum Authenticity — Dilithium-III signatures</li>
+            <li data-i18n="archL0"><strong>L0</strong> Canonical Event Lineage — Deterministic serialization, SHA3-256</li>
+        </ul>
+        <div class="comparison-note" style="margin-top: 40px;" data-i18n="archNote">
+            Aligned with EU AI Act and GDPR Article 22: OpLogica provides the “meaningful information about the logic involved” and verifiable record-keeping that regulators require for high-stakes and high-risk AI systems.
+        </div>
+    </section>
+
+    <!-- Audience Section -->
+    <section class="section" id="audience" style="background: var(--bg-secondary);">
+        <div class="section-header">
+            <div class="section-badge" data-i18n="audienceBadge">APPLICATION DOMAINS</div>
+            <h2 class="section-title" data-i18n="audienceTitle">Application Domains</h2>
+            <p class="section-subtitle" data-i18n="audienceSubtitle">The OpLogica framework applies across any domain requiring accountable AI decisions.</p>
+        </div>
+        
+        <div class="audience-grid">
+            <div class="audience-card" onclick="window.location.href='/demo'">
+                <div class="audience-icon">👤</div>
+                <h3 class="audience-title" data-i18n="aud1Title">Medical Triage</h3>
+                <p class="audience-desc" data-i18n="aud1Desc">Emergency patient prioritization</p>
+                <ul class="audience-features">
+                    <li data-i18n="aud1F1">Patient priority scoring</li>
+                    <li data-i18n="aud1F2">Vital signs analysis</li>
+                    <li data-i18n="aud1F3">Clinical verification</li>
+                </ul>
+            </div>
+            <div class="audience-card" onclick="window.location.href='/demo/hiring'">
+                <div class="audience-icon">🎓</div>
+                <h3 class="audience-title" data-i18n="aud2Title">Employment Screening</h3>
+                <p class="audience-desc" data-i18n="aud2Desc">Candidate evaluation and scoring</p>
+                <ul class="audience-features">
+                    <li data-i18n="aud2F1">Candidate scoring</li>
+                    <li data-i18n="aud2F2">Bias detection</li>
+                    <li data-i18n="aud2F3">Hiring compliance</li>
+                </ul>
+            </div>
+            <div class="audience-card" onclick="window.location.href='/demo/finance'">
+                <div class="audience-icon">🏢</div>
+                <h3 class="audience-title" data-i18n="aud3Title">Financial Credit Assessment</h3>
+                <p class="audience-desc" data-i18n="aud3Desc">Loan evaluation and risk scoring</p>
+                <ul class="audience-features">
+                    <li data-i18n="aud3F1">Credit risk scoring</li>
+                    <li data-i18n="aud3F2">DTI evaluation</li>
+                    <li data-i18n="aud3F3">Fair lending compliance</li>
+                </ul>
+            </div>
+            <div class="audience-card" onclick="window.location.href='/demo/permits'">
+                <div class="audience-icon">🏛️</div>
+                <h3 class="audience-title" data-i18n="aud4Title">Government Permits</h3>
+                <p class="audience-desc" data-i18n="aud4Desc">Building permit assessment</p>
+                <ul class="audience-features">
+                    <li data-i18n="aud4F1">Zoning compliance</li>
+                    <li data-i18n="aud4F2">Safety requirements</li>
+                    <li data-i18n="aud4F3">Permit verification</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title" data-i18n="ctaTitle">Explore OpLogica's Triadic Verification Framework</h2>
+            <p class="cta-subtitle" data-i18n="ctaSubtitle">See how accountability can be operationalized as a formal, verifiable property. Try the interactive demo or read the research paper.</p>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <a href="/demo" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;" data-i18n="ctaTryDemo">Try Live Demo</a>
+                <a href="#research" class="btn btn-ghost" style="padding: 16px 32px; font-size: 1.1rem;" data-i18n="ctaReadPaper">Read the Paper</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg viewBox="0 0 40 40" width="32" height="32">
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="url(#footGrad)" stroke-width="2"/>
+                        <path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                        <defs>
+                            <linearGradient id="footGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00D9FF"/>
+                                <stop offset="100%" stop-color="#00FF88"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>OpLogica</span>
+                </div>
+                <p class="footer-desc"><span data-i18n="footerDesc">OpLogica — A research-driven AI accountability framework. Developed by Mohamed Ibrahim. Academic correspondence: </span><a href="mailto:ceo@oplogica.com">ceo@oplogica.com</a></p>
+            </div>
+            <div class="footer-column">
+                <h4 data-i18n="footerProduct">Product</h4>
+                <ul class="footer-links">
+                    <li><a href="#features" data-i18n="footerFeatures">Features</a></li>
+                    <li><a href="/docs" data-i18n="footerDocs">Documentation</a></li>
+                    <li><a href="/chat" data-i18n="footerChat">Chat</a></li>
+                    <li><a href="/demo" data-i18n="navDemo">Try Demo</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-legal-block" data-i18n="footerLegal">OpLogica, Inc. (Delaware, USA) — Advancing accountable AI from research to practice. © 2025 OpLogica, Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // OPLOGICA LANDING PAGE v9
+        // ==========================================
+
+        // Translations — English (default), Arabic, Turkish. No mixing: content follows selected language.
+        const translations = {
+            en: {
+                navFeatures: 'Features',
+                navFramework: 'Framework',
+                navResearch: 'Research',
+                navSolutions: 'Application Domains',
+                navPricing: 'Pricing',
+                navChat: 'Chat',
+                navDocs: 'Documentation',
+                navDemo: 'Try Demo',
+                navLogin: 'Log in',
+                navSignup: 'Get Started',
+                heroBadge: 'AI-Powered Decision Intelligence',
+                heroTitle1: 'Make Smarter',
+                heroTitle2: 'Decisions with AI',
+                heroSubtitle: 'The first platform to operationalize AI accountability as a formal, verifiable property. Triadic Verification gives you justified decisions—backed by peer-reviewed research and cryptographic guarantees.',
+                heroLiveDemo: 'Explore Live Demo',
+                heroReadPaper: 'Read the Paper',
+                heroStart: 'Start Free',
+                heroDemo: 'Watch Demo',
+                statAnalyses: 'Verification Coverage',
+                statAccuracy: 'Auditability',
+                statCountries: 'Policy Compliance',
+                authTitle: 'Get Started Free',
+                authSubtitle: 'No credit card required',
+                authSignup: 'Sign Up',
+                authSignin: 'Sign In',
+                formName: 'Full Name',
+                formEmail: 'Email Address',
+                formPassword: 'Password',
+                authCreateAccount: 'Create Free Account',
+                authSigninBtn: 'Sign In',
+                authOr: 'or',
+                authTryDemo: 'Try Without Account',
+                featuresBadge: 'POWERFUL FEATURES',
+                featuresTitle: 'Everything You Need for Smart Decisions',
+                featuresSubtitle: 'Comprehensive AI toolkit for researchers, analysts, and decision-makers.',
+                feature1Title: 'Deep Analysis',
+                feature1Desc: 'Multi-layered analysis with evidence-based reasoning and comprehensive insights.',
+                feature2Title: 'Triadic Verification',
+                feature2Desc: 'Proof of Operation, Reason, and Intent—cryptographic and logical verification for every analysis.',
+                feature3Title: 'Research Mode',
+                feature3Desc: 'Academic-level analysis with citations from Semantic Scholar and arXiv.',
+                feature4Title: 'Market Intelligence',
+                feature4Desc: 'Real-time market data, stock analysis, and financial insights.',
+                feature5Title: 'Document Analysis',
+                feature5Desc: 'Upload PDFs, images, and documents for intelligent extraction and analysis.',
+                feature6Title: 'Multi-Language',
+                feature6Desc: 'Full support for English, Arabic, Turkish, and more.',
+                freeBadge: 'FREE',
+                freeTitle: 'Use for Free',
+                freeSubtitle: '20 messages without account • 50 messages per day after signup and verification',
+                freeVisitor: 'Visitor',
+                freeVisitorPeriod: 'free messages',
+                freeVisitorDesc: 'Try the app instantly without signing up',
+                freeVisitorF1: '20 free messages',
+                freeVisitorF2: 'Quick & Deep analysis modes',
+                freeTryNow: 'Try Now',
+                freeRegistered: 'Registered',
+                freeRegisteredPeriod: 'messages/day',
+                freeRegisteredDesc: 'After registration and email verification',
+                freeRegisteredF1: '50 free messages per day',
+                freeRegisteredF2: 'All analysis modes',
+                freeSignIn: 'Sign In',
+                freeMostPopular: 'Most Popular',
+                audienceBadge: 'APPLICATION DOMAINS',
+                audienceTitle: 'Application Domains',
+                audienceSubtitle: 'The OpLogica framework applies across any domain requiring accountable AI decisions.',
+                aud1Title: 'Medical Triage',
+                aud1Desc: 'Emergency patient prioritization',
+                aud1F1: 'Daily decisions support',
+                aud1F2: 'Learning assistance',
+                aud1F3: 'Personal research',
+                aud2Title: 'Employment Screening',
+                aud2Desc: 'Candidate evaluation and scoring',
+                aud2F1: 'Literature review',
+                aud2F2: 'Citation management',
+                aud2F3: 'Data analysis',
+                aud3Title: 'Financial Credit Assessment',
+                aud3Desc: 'Loan evaluation and risk scoring',
+                aud3F1: 'Market analysis',
+                aud3F2: 'Strategic planning',
+                aud3F3: 'Risk assessment',
+                aud4Title: 'Government Permits',
+                aud4Desc: 'Building permit assessment',
+                aud4F1: 'Policy analysis',
+                aud4F2: 'Public data insights',
+                aud4F3: 'Compliance tools',
+                ctaTitle: 'Explore OpLogica\'s Triadic Verification Framework',
+                ctaSubtitle: 'See how accountability can be operationalized as a formal, verifiable property. Try the interactive demo or read the research paper.',
+                ctaTryDemo: 'Try Live Demo',
+                ctaReadPaper: 'Read the Paper',
+                ctaStart: 'Try OpLogica Free',
+                footerDesc: 'OpLogica — A research-driven AI accountability framework. Developed by Mohamed Ibrahim. Academic correspondence: ',
+                footerLegal: 'OpLogica, Inc. (Delaware, USA) — Advancing accountable AI from research to practice. © 2025 OpLogica, Inc. All rights reserved.',
+                footerProduct: 'Product',
+                footerFeatures: 'Features',
+                footerPricing: 'Pricing',
+                footerChat: 'Chat',
+                footerAPI: 'API',
+                footerSolutions: 'Solutions',
+                footerResearchers: 'Researchers',
+                footerBusiness: 'Business',
+                footerEnterprise: 'Enterprise',
+                footerGov: 'Government',
+                footerResources: 'Resources',
+                footerDocs: 'Documentation',
+                footerBlog: 'Blog',
+                footerHelp: 'Help Center',
+                footerStatus: 'Status',
+                footerCompany: 'Company',
+                footerAbout: 'About',
+                footerCareers: 'Careers',
+                footerPrivacy: 'Privacy',
+                footerTerms: 'Terms',
+                ccHeadline: 'Control Core',
+                ccSubheadline: 'Real-time decision accountability — visualized, verifiable, and export-ready.',
+                ccBody: 'A live interface that turns decisions into auditable proof bundles: Intent → Reason → Operation.',
+                ccReadDocs: 'Read Documentation',
+                ccTryDemo: 'Try Live Demo',
+                ccBadgePoI: 'Proof of Intent (PoI)',
+                ccBadgePoR: 'Proof of Reason (PoR)',
+                ccBadgePoO: 'Proof of Operation (PoO)',
+                ccBadge3D: '3D Reason Graph',
+                ccBadgeRT: 'Real-time (WS)',
+                ccPreviewLabel: 'Interactive Preview',
+                frameworkBadge: 'THE FRAMEWORK',
+                frameworkTitle: 'Triadic Verification for Accountable AI',
+                frameworkSubtitle: 'OpLogica unifies three dimensions of AI accountability: operational integrity, logical justification, and ethical alignment. No other framework integrates all three.',
+                proofPooTitle: 'Proof of Operation (PoO)',
+                proofPooDesc: 'Cryptographic verification that computational processes executed as specified—without tampering or corruption. SHA3-256 hashing and post-quantum signatures ensure integrity of every decision record.',
+                proofPorTitle: 'Proof of Reason (PoR)',
+                proofPorDesc: 'Formal demonstration that decisions follow necessarily from premises and rules. Not just "what features mattered," but why the output was the right one given declared policies and observed data. Reason Graphs connect data, rules, and conclusions.',
+                proofPoiTitle: 'Proof of Intent (PoI)',
+                proofPoiDesc: 'A priori declaration of ethical constraints, cryptographically signed before any decision. Prevents post-hoc rationalization: the system proves that constraints existed before operations and that decisions satisfied them.',
+                explanationVsJustification: '<strong>Explanation vs. justification:</strong> An explanation describes what influenced a result. A justification demonstrates that, given policy and data, the decision was appropriate. OpLogica provides justifications—verifiable demonstrations that specific decisions followed necessarily from declared constraints and observed data.',
+                frameworkDocsLink: '📖 Full Technical Documentation',
+                researchBadge: 'EMPIRICAL VALIDATION',
+                researchTitle: 'Evidence-Based Results',
+                researchSubtitle: 'Validated in a medical triage simulation with 1,000 synthetic patient cases. Comparative evaluation against LIME and unverified baseline.',
+                stat1Label: 'Verification coverage (vs 87% LIME)',
+                stat2Label: 'External auditability (vs 71% LIME)',
+                stat3Label: 'Policy compliance',
+                stat4Label: 'Mean latency per decision',
+                researchNote: 'Accountability in AI can be operationalized as a <strong>formal, verifiable property</strong>—not a post-hoc aspiration. Just as cryptographic systems provide provable security, OpLogica provides provable accountability.',
+                researchDemoLink: '🔬 Try the Interactive Triage Demo',
+                paperBadge: 'BUILT ON RESEARCH',
+                paperTitle: 'From Academic Framework to Product',
+                paperSubtitle: 'OpLogica is grounded in peer-reviewed research: a triadic verification framework for accountable AI decision systems.',
+                paperFullTitle: 'OpLogica: A Triadic Verification Framework for Accountable AI Decision Systems—Design, Implementation, and Empirical Validation',
+                paperAbstract: 'Artificial intelligence systems increasingly make high-stakes decisions affecting human welfare. Current approaches remain fragmented: post-hoc explanations lack formal guarantees; audit mechanisms capture operations without justifying reasoning. OpLogica unifies three dimensions—Proof of Operation (PoO) for cryptographic integrity, Proof of Reason (PoR) for formal justification of decision logic, and Proof of Intent (PoI) for a priori declaration of ethical constraints. Empirical validation demonstrates 100% verification coverage, 98% external auditability, 99.2% policy compliance, with acceptable computational overhead (47 ms per decision). Accountability can be operationalized as a formal, verifiable property rather than a post-hoc aspiration.',
+                archTitle: 'Architectural Layers',
+                archL4: '<strong>L4</strong> Verification Interface — REST/JSON APIs and offline validation',
+                archL3: '<strong>L3</strong> Logic Kernel of Trust — Reason Graphs and Δ-Logic Engine',
+                archL2: '<strong>L2</strong> Witness Consensus — Distributed timestamp federation',
+                archL1: '<strong>L1</strong> Post-Quantum Authenticity — Dilithium-III signatures',
+                archL0: '<strong>L0</strong> Canonical Event Lineage — Deterministic serialization, SHA3-256',
+                archNote: 'Aligned with EU AI Act and GDPR Article 22: OpLogica provides the "meaningful information about the logic involved" and verifiable record-keeping that regulators require for high-stakes and high-risk AI systems.',
+                kw1: 'AI accountability',
+                kw2: 'Verification framework',
+                kw3: 'Explainable AI',
+                kw4: 'Proof-of-reason',
+                kw5: 'Algorithmic auditing',
+                kw6: 'Post-quantum cryptography',
+                kw7: 'Medical AI ethics'
+            },
+            ar: {
+                navFeatures: 'الميزات',
+                navFramework: 'الإطار',
+                navResearch: 'البحث',
+                navSolutions: 'مجالات التطبيق',
+                navPricing: 'الأسعار',
+                navChat: 'الدردشة',
+                navDocs: 'التوثيق',
+                navDemo: 'جرّب العرض',
+                navLogin: 'تسجيل الدخول',
+                navSignup: 'ابدأ الآن',
+                heroBadge: 'ذكاء القرارات بالذكاء الاصطناعي',
+                heroTitle1: 'اتخذ قرارات',
+                heroTitle2: 'أذكى مع الذكاء الاصطناعي',
+                heroSubtitle: 'أول منصة تعامل مساءلة الذكاء الاصطناعي كخاصية رسمية قابلة للتحقق. الإطار الثلاثي يمنحك قرارات مبررة مدعومة بأبحاث وتضمينات تشفيرية.',
+                heroLiveDemo: 'استكشف العرض التوضيحي المباشر',
+                heroReadPaper: 'اقرأ البحث',
+                heroStart: 'ابدأ مجاناً',
+                heroDemo: 'شاهد العرض',
+                statAnalyses: 'تغطية التحقق',
+                statAccuracy: 'إمكانية التدقيق',
+                statCountries: 'الامتثال للسياسات',
+                authTitle: 'ابدأ مجاناً',
+                authSubtitle: 'لا تحتاج بطاقة ائتمان',
+                authSignup: 'إنشاء حساب',
+                authSignin: 'تسجيل الدخول',
+                formName: 'الاسم الكامل',
+                formEmail: 'البريد الإلكتروني',
+                formPassword: 'كلمة المرور',
+                authCreateAccount: 'إنشاء حساب مجاني',
+                authSigninBtn: 'تسجيل الدخول',
+                authOr: 'أو',
+                authTryDemo: 'جرب بدون حساب',
+                featuresBadge: 'ميزات قوية',
+                featuresTitle: 'كل ما تحتاجه لقرارات ذكية',
+                featuresSubtitle: 'مجموعة أدوات ذكاء اصطناعي للباحثين والمحللين وصناع القرار.',
+                feature1Title: 'تحليل عميق',
+                feature1Desc: 'تحليل متعدد المستويات مع استدلال قائم على الأدلة ورؤى شاملة.',
+                feature2Title: 'التحقق الثلاثي',
+                feature2Desc: 'إثبات التشغيل والمنطق والنية — تحقق تشفيري ومنطقي لكل تحليل.',
+                feature3Title: 'وضع البحث',
+                feature3Desc: 'تحليل بمستوى أكاديمي مع استشهادات من Semantic Scholar وarXiv.',
+                feature4Title: 'ذكاء السوق',
+                feature4Desc: 'بيانات السوق والتحليل المالي في الوقت الفعلي.',
+                feature5Title: 'تحليل المستندات',
+                feature5Desc: 'رفع PDF والصور والمستندات للاستخراج والتحليل الذكي.',
+                feature6Title: 'متعدد اللغات',
+                feature6Desc: 'دعم كامل للإنجليزية والعربية والتركية والمزيد.',
+                freeBadge: 'مجاناً',
+                freeTitle: 'استخدم مجاناً',
+                freeSubtitle: '20 رسالة بدون حساب • 50 رسالة يومياً بعد التسجيل والتفعيل',
+                freeVisitor: 'زائر',
+                freeVisitorPeriod: 'رسالة مجانية',
+                freeVisitorDesc: 'جرب التطبيق فوراً بدون تسجيل',
+                freeVisitorF1: '20 رسالة مجانية',
+                freeVisitorF2: 'وضع سريع وتحليل عميق',
+                freeTryNow: 'جرب الآن',
+                freeRegistered: 'مسجّل',
+                freeRegisteredPeriod: 'رسالة/يوم',
+                freeRegisteredDesc: 'بعد التسجيل وتفعيل البريد',
+                freeRegisteredF1: '50 رسالة يومياً مجاناً',
+                freeRegisteredF2: 'جميع أوضاع التحليل',
+                freeSignIn: 'تسجيل الدخول',
+                freeMostPopular: 'الأكثر اختياراً',
+                audienceBadge: 'مجالات التطبيق',
+                audienceTitle: 'مجالات التطبيق',
+                audienceSubtitle: 'ينطبق إطار أوبلوجيكا على أي مجال يتطلب قرارات ذكاء اصطناعي قابلة للمساءلة.',
+                aud1Title: 'الفرز الطبي',
+                aud1Desc: 'تصنيف أولوية المرضى',
+                aud1F1: 'دعم القرارات اليومية',
+                aud1F2: 'مساعد تعلم',
+                aud1F3: 'بحث شخصي',
+                aud2Title: 'فرز التوظيف',
+                aud2Desc: 'تقييم المرشحين',
+                aud2F1: 'مراجعة الأدبيات',
+                aud2F2: 'إدارة الاستشهادات',
+                aud2F3: 'تحليل البيانات',
+                aud3Title: 'تقييم الائتمان',
+                aud3Desc: 'تقييم القروض والمخاطر',
+                aud3F1: 'تحليل السوق',
+                aud3F2: 'التخطيط الاستراتيجي',
+                aud3F3: 'تقييم المخاطر',
+                aud4Title: 'التصاريح الحكومية',
+                aud4Desc: 'تقييم تصاريح البناء',
+                aud4F1: 'تحليل السياسات',
+                aud4F2: 'رؤى البيانات العامة',
+                aud4F3: 'أدوات الامتثال',
+                ctaTitle: 'اكتشف إطار التحقق الثلاثي من أوبلوجيكا',
+                ctaSubtitle: 'شاهد كيف يمكن تفعيل المساءلة كخاصية رسمية قابلة للتحقق. جرّب العرض التوضيحي التفاعلي أو اقرأ الورقة البحثية.',
+                ctaTryDemo: 'جرّب العرض التوضيحي',
+                ctaReadPaper: 'اقرأ البحث',
+                ctaStart: 'جرب OpLogica مجاناً',
+                footerDesc: 'OpLogica — إطار مساءلة ذكاء اصطناعي مبني على البحث. طوّره محمد إبراهيم. للمراسلات الأكاديمية: ',
+                footerLegal: 'OpLogica, Inc. (ديلاوير، الولايات المتحدة) — تطوير الذكاء الاصطناعي المسؤول من البحث إلى التطبيق. © 2025 OpLogica, Inc. جميع الحقوق محفوظة.',
+                footerProduct: 'المنتج',
+                footerFeatures: 'الميزات',
+                footerPricing: 'الأسعار',
+                footerChat: 'الدردشة',
+                footerAPI: 'واجهة برمجة التطبيقات',
+                footerSolutions: 'الحلول',
+                footerResearchers: 'باحثون',
+                footerBusiness: 'شركات',
+                footerEnterprise: 'مؤسسات',
+                footerGov: 'حكومات',
+                footerResources: 'موارد',
+                footerDocs: 'التوثيق',
+                footerBlog: 'المدونة',
+                footerHelp: 'مركز المساعدة',
+                footerStatus: 'الحالة',
+                footerCompany: 'الشركة',
+                footerAbout: 'عن OpLogica',
+                footerCareers: 'الوظائف',
+                footerPrivacy: 'الخصوصية',
+                footerTerms: 'الشروط',
+                ccHeadline: 'نواة التحكم',
+                ccSubheadline: 'مساءلة القرارات في الوقت الحقيقي — مرئية وقابلة للتحقق وجاهزة للتصدير.',
+                ccBody: 'واجهة حية تحوّل القرارات إلى حزم إثبات قابلة للتدقيق: القصد → المنطق → العملية.',
+                ccReadDocs: 'اقرأ التوثيق',
+                ccTryDemo: 'جرّب العرض التوضيحي',
+                ccBadgePoI: 'إثبات القصد (PoI)',
+                ccBadgePoR: 'إثبات المنطق (PoR)',
+                ccBadgePoO: 'إثبات العملية (PoO)',
+                ccBadge3D: 'رسم بياني ثلاثي الأبعاد',
+                ccBadgeRT: 'الوقت الحقيقي (WS)',
+                ccPreviewLabel: 'معاينة تفاعلية',
+                frameworkBadge: 'الإطار',
+                frameworkTitle: 'التحقق الثلاثي للذكاء الاصطناعي المسؤول',
+                frameworkSubtitle: 'يوحّد OpLogica ثلاثة أبعاد لمساءلة الذكاء الاصطناعي: النزاهة التشغيلية، والتبرير المنطقي، والتوافق الأخلاقي. لا يوجد إطار آخر يدمج الثلاثة معاً.',
+                proofPooTitle: 'إثبات العملية (PoO)',
+                proofPooDesc: 'تحقق تشفيري من أن العمليات الحسابية نُفذت كما هو محدد — بدون تلاعب أو تلف. تضمن تجزئات SHA3-256 والتوقيعات ما بعد الكمية سلامة كل سجل قرار.',
+                proofPorTitle: 'إثبات المنطق (PoR)',
+                proofPorDesc: 'برهان رسمي على أن القرارات تتبع بالضرورة من المقدمات والقواعد. ليس فقط "ما العوامل المؤثرة"، بل لماذا كان المخرج هو الصحيح بالنظر إلى السياسات المعلنة والبيانات المرصودة. ترسم بيانات الاستدلال الروابط بين البيانات والقواعد والاستنتاجات.',
+                proofPoiTitle: 'إثبات القصد (PoI)',
+                proofPoiDesc: 'إعلان مسبق للقيود الأخلاقية، موقّع تشفيرياً قبل أي قرار. يمنع التبرير بأثر رجعي: يثبت النظام أن القيود كانت موجودة قبل العمليات وأن القرارات استوفتها.',
+                explanationVsJustification: '<strong>التفسير مقابل التبرير:</strong> التفسير يصف ما أثّر في النتيجة. التبرير يُثبت أنه بالنظر إلى السياسة والبيانات، كان القرار مناسباً. يقدم OpLogica تبريرات — براهين قابلة للتحقق على أن قرارات محددة اتبعت بالضرورة القيود المعلنة والبيانات المرصودة.',
+                frameworkDocsLink: '📖 التوثيق التقني الكامل',
+                researchBadge: 'التحقق التجريبي',
+                researchTitle: 'نتائج مبنية على الأدلة',
+                researchSubtitle: 'تم التحقق في محاكاة فرز طبي مع 1,000 حالة مريض اصطناعية. تقييم مقارن مع LIME والخط الأساسي غير المحقق.',
+                stat1Label: 'تغطية التحقق (مقابل 87% LIME)',
+                stat2Label: 'قابلية التدقيق الخارجي (مقابل 71% LIME)',
+                stat3Label: 'الامتثال للسياسات',
+                stat4Label: 'متوسط زمن الاستجابة لكل قرار',
+                researchNote: 'يمكن تفعيل المساءلة في الذكاء الاصطناعي كـ <strong>خاصية رسمية قابلة للتحقق</strong> — وليست طموحاً بأثر رجعي. كما توفر أنظمة التشفير أماناً قابلاً للإثبات، يوفر OpLogica مساءلة قابلة للإثبات.',
+                researchDemoLink: '🔬 جرّب العرض التفاعلي للفرز الطبي',
+                paperBadge: 'مبني على البحث',
+                paperTitle: 'من الإطار الأكاديمي إلى المنتج',
+                paperSubtitle: 'يستند OpLogica إلى بحث مُحكّم: إطار تحقق ثلاثي لأنظمة قرارات الذكاء الاصطناعي المسؤولة.',
+                paperFullTitle: 'OpLogica: إطار تحقق ثلاثي لأنظمة قرارات الذكاء الاصطناعي المسؤولة — التصميم والتنفيذ والتحقق التجريبي',
+                paperAbstract: 'تتخذ أنظمة الذكاء الاصطناعي بشكل متزايد قرارات عالية المخاطر تؤثر على رفاهية البشر. تبقى المقاربات الحالية مجزأة: التفسيرات بأثر رجعي تفتقر إلى ضمانات رسمية؛ وآليات التدقيق تسجل العمليات دون تبرير الاستدلال. يوحّد OpLogica ثلاثة أبعاد — إثبات العملية (PoO) للنزاهة التشفيرية، وإثبات المنطق (PoR) للتبرير الرسمي لمنطق القرار، وإثبات القصد (PoI) للإعلان المسبق عن القيود الأخلاقية. يُظهر التحقق التجريبي تغطية تحقق 100%، وقابلية تدقيق خارجي 98%، وامتثال للسياسات 99.2%، مع عبء حسابي مقبول (47 مللي ثانية لكل قرار).',
+                archTitle: 'الطبقات المعمارية',
+                archL4: '<strong>L4</strong> واجهة التحقق — واجهات REST/JSON والتحقق غير المتصل',
+                archL3: '<strong>L3</strong> نواة المنطق الموثوقة — رسوم الاستدلال ومحرك Δ-Logic',
+                archL2: '<strong>L2</strong> إجماع الشهود — اتحاد الطوابع الزمنية الموزعة',
+                archL1: '<strong>L1</strong> الأصالة ما بعد الكمية — توقيعات Dilithium-III',
+                archL0: '<strong>L0</strong> السلسلة الحدثية الأساسية — التسلسل الحتمي وSHA3-256',
+                archNote: 'متوافق مع قانون الذكاء الاصطناعي الأوروبي والمادة 22 من GDPR: يوفر OpLogica "المعلومات ذات المعنى حول المنطق المُستخدم" وحفظ السجلات القابل للتحقق الذي يطلبه المنظمون لأنظمة الذكاء الاصطناعي عالية المخاطر.',
+                kw1: 'مساءلة الذكاء الاصطناعي',
+                kw2: 'إطار التحقق',
+                kw3: 'الذكاء الاصطناعي القابل للتفسير',
+                kw4: 'إثبات الاستدلال',
+                kw5: 'التدقيق الخوارزمي',
+                kw6: 'التشفير ما بعد الكمي',
+                kw7: 'أخلاقيات الذكاء الاصطناعي الطبي'
+            },
+            tr: {
+                navFeatures: 'Özellikler',
+                navFramework: 'Çerçeve',
+                navResearch: 'Araştırma',
+                navSolutions: 'Uygulama Alanları',
+                navPricing: 'Fiyatlar',
+                navChat: 'Sohbet',
+                navDocs: 'Dokümantasyon',
+                navDemo: 'Demo Dene',
+                navLogin: 'Giriş',
+                navSignup: 'Başla',
+                heroBadge: 'Yapay Zeka Destekli Karar Zekası',
+                heroTitle1: 'Daha Akıllı',
+                heroTitle2: 'Kararlar Alın',
+                heroSubtitle: 'Yapay zeka hesap verebilirliğini resmi, doğrulanabilir bir özellik olarak uygulayan ilk platform. Üçlü Doğrulama, hakemli araştırmalar ve kriptografik garantilerle desteklenen gerekçeli kararlar sunar.',
+                heroLiveDemo: 'Canlı Demoyu Keşfet',
+                heroReadPaper: 'Makaleyi Okuyun',
+                heroStart: 'Ücretsiz Başla',
+                heroDemo: 'Demo İzle',
+                statAnalyses: 'Doğrulama Kapsamı',
+                statAccuracy: 'Denetlenebilirlik',
+                statCountries: 'Politika Uyumu',
+                authTitle: 'Ücretsiz Başlayın',
+                authSubtitle: 'Kredi kartı gerekmez',
+                authSignup: 'Kayıt Ol',
+                authSignin: 'Giriş Yap',
+                formName: 'Ad Soyad',
+                formEmail: 'E-posta',
+                formPassword: 'Şifre',
+                authCreateAccount: 'Ücretsiz Hesap Oluştur',
+                authSigninBtn: 'Giriş Yap',
+                authOr: 'veya',
+                authTryDemo: 'Hesap Olmadan Dene',
+                featuresBadge: 'GÜÇLÜ ÖZELLİKLER',
+                featuresTitle: 'Akıllı Kararlar İçin İhtiyacınız Olan Her Şey',
+                featuresSubtitle: 'Araştırmacılar, analistler ve karar vericiler için kapsamlı yapay zeka araç seti.',
+                feature1Title: 'Derin Analiz',
+                feature1Desc: 'Kanıta dayalı akıl yürütme ve kapsamlı içgörülerle çok katmanlı analiz.',
+                feature2Title: 'Üçlü Doğrulama',
+                feature2Desc: 'Operasyon, Mantık ve Niyet Kanıtı — her analiz için kriptografik ve mantıksal doğrulama.',
+                feature3Title: 'Araştırma Modu',
+                feature3Desc: 'Semantic Scholar ve arXiv alıntılarıyla akademik düzey analiz.',
+                feature4Title: 'Piyasa Zekası',
+                feature4Desc: 'Gerçek zamanlı piyasa verileri, hisse ve finansal analiz.',
+                feature5Title: 'Belge Analizi',
+                feature5Desc: 'PDF, görsel ve belgeleri akıllı çıkarma ve analiz için yükleyin.',
+                feature6Title: 'Çoklu Dil',
+                feature6Desc: 'İngilizce, Arapça, Türkçe ve daha fazlası için tam destek.',
+                freeBadge: 'ÜCRETSİZ',
+                freeTitle: 'Ücretsiz Kullanın',
+                freeSubtitle: 'Hesapsız 20 mesaj • Kayıt ve doğrulamadan sonra günde 50 mesaj',
+                freeVisitor: 'Ziyaretçi',
+                freeVisitorPeriod: 'ücretsiz mesaj',
+                freeVisitorDesc: 'Kayıt olmadan uygulamayı hemen deneyin',
+                freeVisitorF1: '20 ücretsiz mesaj',
+                freeVisitorF2: 'Hızlı ve Derin analiz modları',
+                freeTryNow: 'Hemen Dene',
+                freeRegistered: 'Kayıtlı',
+                freeRegisteredPeriod: 'mesaj/gün',
+                freeRegisteredDesc: 'Kayıt ve e-posta doğrulamasından sonra',
+                freeRegisteredF1: 'Günde 50 ücretsiz mesaj',
+                freeRegisteredF2: 'Tüm analiz modları',
+                freeSignIn: 'Giriş Yap',
+                freeMostPopular: 'En Popüler',
+                audienceBadge: 'UYGULAMA ALANLARI',
+                audienceTitle: 'Uygulama Alanları',
+                audienceSubtitle: 'OpLogica çerçevesi, hesap verebilir yapay zeka kararları gerektiren her alanda uygulanır.',
+                aud1Title: 'Kişisel Karar Desteği',
+                aud1Desc: 'Kişisel karar verme ve analiz',
+                aud1F1: 'Günlük karar desteği',
+                aud1F2: 'Öğrenme yardımı',
+                aud1F3: 'Kişisel araştırma',
+                aud2Title: 'Akademik Araştırma ve Doğrulama',
+                aud2Desc: 'Akademik araştırma ve analiz',
+                aud2F1: 'Literatür taraması',
+                aud2F2: 'Atıf yönetimi',
+                aud2F3: 'Veri analizi',
+                aud3Title: 'Kurumsal Hesap Verebilirlik',
+                aud3Desc: 'Kurumsal düzey zeka',
+                aud3F1: 'Piyasa analizi',
+                aud3F2: 'Stratejik planlama',
+                aud3F3: 'Risk değerlendirmesi',
+                aud4Title: 'Kamu Sektörü Yönetişimi',
+                aud4Desc: 'Politika ve yönetişim desteği',
+                aud4F1: 'Politika analizi',
+                aud4F2: 'Kamu veri içgörüleri',
+                aud4F3: 'Uyum araçları',
+                ctaTitle: 'OpLogica\'nın Üçlü Doğrulama Çerçevesini Keşfedin',
+                ctaSubtitle: 'Hesap verebilirliğin resmi, doğrulanabilir bir özellik olarak nasıl uygulanabileceğini görün. İnteraktif demoyu deneyin veya araştırma makalesini okuyun.',
+                ctaTryDemo: 'Demoyu Deneyin',
+                ctaReadPaper: 'Makaleyi Okuyun',
+                ctaStart: 'OpLogica\'yı Ücretsiz Dene',
+                footerDesc: 'OpLogica — Araştırmaya dayalı bir yapay zeka hesap verebilirlik çerçevesi. Geliştiren: Mohamed Ibrahim. Akademik yazışma: ',
+                footerLegal: 'OpLogica, Inc. (Delaware, ABD) — Hesap verebilir yapay zekayı araştırmadan uygulamaya taşımak. © 2025 OpLogica, Inc. Tüm hakları saklıdır.',
+                footerProduct: 'Ürün',
+                footerFeatures: 'Özellikler',
+                footerPricing: 'Fiyatlar',
+                footerChat: 'Sohbet',
+                footerAPI: 'API',
+                footerSolutions: 'Çözümler',
+                footerResearchers: 'Araştırmacılar',
+                footerBusiness: 'İşletmeler',
+                footerEnterprise: 'Kurumsal',
+                footerGov: 'Kamu',
+                footerResources: 'Kaynaklar',
+                footerDocs: 'Dokümantasyon',
+                footerBlog: 'Blog',
+                footerHelp: 'Yardım Merkezi',
+                footerStatus: 'Durum',
+                footerCompany: 'Şirket',
+                footerAbout: 'Hakkımızda',
+                footerCareers: 'Kariyer',
+                footerPrivacy: 'Gizlilik',
+                footerTerms: 'Koşullar',
+                ccHeadline: 'Kontrol Çekirdeği',
+                ccSubheadline: 'Gerçek zamanlı karar hesap verebilirliği — görselleştirilmiş, doğrulanabilir ve dışa aktarılabilir.',
+                ccBody: 'Kararları denetlenebilir kanıt paketlerine dönüştüren canlı arayüz: Niyet → Gerekçe → İşlem.',
+                ccReadDocs: 'Dokümantasyonu Oku',
+                ccTryDemo: 'Canlı Demoyu Dene',
+                ccBadgePoI: 'Niyet Kanıtı (PoI)',
+                ccBadgePoR: 'Gerekçe Kanıtı (PoR)',
+                ccBadgePoO: 'İşlem Kanıtı (PoO)',
+                ccBadge3D: '3B Akıl Yürütme Grafiği',
+                ccBadgeRT: 'Gerçek Zamanlı (WS)',
+                ccPreviewLabel: 'İnteraktif Önizleme',
+                frameworkBadge: 'ÇERÇEVE',
+                frameworkTitle: 'Hesap Verebilir Yapay Zeka için Üçlü Doğrulama',
+                frameworkSubtitle: 'OpLogica, yapay zeka hesap verebilirliğinin üç boyutunu birleştirir: operasyonel bütünlük, mantıksal gerekçelendirme ve etik uyum. Başka hiçbir çerçeve üçünü de entegre etmez.',
+                proofPooTitle: 'İşlem Kanıtı (PoO)',
+                proofPooDesc: 'Hesaplama süreçlerinin belirtildiği şekilde yürütüldüğünün kriptografik doğrulaması — müdahale veya bozulma olmadan. SHA3-256 ve kuantum sonrası imzalar her karar kaydının bütünlüğünü sağlar.',
+                proofPorTitle: 'Gerekçe Kanıtı (PoR)',
+                proofPorDesc: 'Kararların öncüllerden ve kurallardan zorunlu olarak takip ettiğinin resmi kanıtı. Sadece "hangi özellikler önemliydi" değil, bildirilen politikalar ve gözlemlenen veriler göz önüne alındığında çıktının neden doğru olduğu.',
+                proofPoiTitle: 'Niyet Kanıtı (PoI)',
+                proofPoiDesc: 'Herhangi bir karardan önce kriptografik olarak imzalanan etik kısıtlamaların önceden beyanı. Sonradan rasyonalizasyonu önler: sistem kısıtlamaların işlemlerden önce var olduğunu ve kararların bunları karşıladığını kanıtlar.',
+                explanationVsJustification: '<strong>Açıklama vs. gerekçelendirme:</strong> Bir açıklama, sonucu neyin etkilediğini tanımlar. Bir gerekçelendirme, politika ve veriler göz önüne alındığında kararın uygun olduğunu gösterir. OpLogica gerekçelendirmeler sunar — bildirilen kısıtlamalar ve gözlemlenen verilerden belirli kararların zorunlu olarak takip ettiğinin doğrulanabilir kanıtları.',
+                frameworkDocsLink: '📖 Tam Teknik Dokümantasyon',
+                researchBadge: 'AMPİRİK DOĞRULAMA',
+                researchTitle: 'Kanıta Dayalı Sonuçlar',
+                researchSubtitle: '1.000 sentetik hasta vakasıyla tıbbi triyaj simülasyonunda doğrulandı. LIME ve doğrulanmamış temele karşı karşılaştırmalı değerlendirme.',
+                stat1Label: 'Doğrulama kapsamı (LIME %87\'ye karşı)',
+                stat2Label: 'Dış denetlenebilirlik (LIME %71\'e karşı)',
+                stat3Label: 'Politika uyumu',
+                stat4Label: 'Karar başına ortalama gecikme',
+                researchNote: 'Yapay zekada hesap verebilirlik, <strong>resmi, doğrulanabilir bir özellik</strong> olarak hayata geçirilebilir. Kriptografik sistemler kanıtlanabilir güvenlik sağladığı gibi, OpLogica kanıtlanabilir hesap verebilirlik sağlar.',
+                researchDemoLink: '🔬 İnteraktif Triyaj Demosunu Dene',
+                paperBadge: 'ARAŞTIRMAYA DAYALI',
+                paperTitle: 'Akademik Çerçeveden Ürüne',
+                paperSubtitle: 'OpLogica, hakemli araştırmaya dayanmaktadır: hesap verebilir yapay zeka karar sistemleri için üçlü doğrulama çerçevesi.',
+                paperFullTitle: 'OpLogica: Hesap Verebilir Yapay Zeka Karar Sistemleri için Üçlü Doğrulama Çerçevesi — Tasarım, Uygulama ve Ampirik Doğrulama',
+                paperAbstract: 'Yapay zeka sistemleri giderek artan şekilde insan refahını etkileyen yüksek riskli kararlar almaktadır. OpLogica üç boyutu birleştirir — kriptografik bütünlük için İşlem Kanıtı (PoO), karar mantığının resmi gerekçelendirmesi için Gerekçe Kanıtı (PoR) ve etik kısıtlamaların önceden beyanı için Niyet Kanıtı (PoI). %100 doğrulama kapsamı, %98 dış denetlenebilirlik, %99.2 politika uyumu gösterilmiştir.',
+                archTitle: 'Mimari Katmanlar',
+                archL4: '<strong>L4</strong> Doğrulama Arayüzü — REST/JSON API\'ler ve çevrimdışı doğrulama',
+                archL3: '<strong>L3</strong> Güvenilir Mantık Çekirdeği — Akıl Yürütme Grafikleri ve Δ-Logic Motoru',
+                archL2: '<strong>L2</strong> Tanık Konsensüsü — Dağıtık zaman damgası federasyonu',
+                archL1: '<strong>L1</strong> Kuantum Sonrası Özgünlük — Dilithium-III imzaları',
+                archL0: '<strong>L0</strong> Kanonik Olay Soy Zinciri — Deterministik serileştirme, SHA3-256',
+                archNote: 'AB Yapay Zeka Yasası ve GDPR Madde 22 ile uyumlu: OpLogica, düzenleyicilerin yüksek riskli yapay zeka sistemleri için gerektirdiği doğrulanabilir kayıt tutmayı sağlar.',
+                kw1: 'Yapay zeka hesap verebilirliği',
+                kw2: 'Doğrulama çerçevesi',
+                kw3: 'Açıklanabilir yapay zeka',
+                kw4: 'Gerekçe kanıtı',
+                kw5: 'Algoritmik denetim',
+                kw6: 'Kuantum sonrası kriptografi',
+                kw7: 'Tıbbi yapay zeka etiği'
+            }
+        };
+
+        let currentLang = localStorage.getItem('oplogica-lang') || 'en';
+        let isYearly = false;
+
+        // Language
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('oplogica-lang', lang);
+            
+            document.body.classList.toggle('rtl', lang === 'ar');
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', 
+                    (lang === 'en' && btn.textContent === 'EN') ||
+                    (lang === 'ar' && btn.textContent === 'عربي') ||
+                    (lang === 'tr' && btn.textContent === 'TR')
+                );
+            });
+            
+            const t = translations[lang] || translations['en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const text = t[key] || translations['en'][key];
+                if (text) {
+                    if (text.includes('<')) {
+                        el.innerHTML = text;
+                    } else {
+                        el.textContent = text;
+                    }
+                }
+            });
+        }
+
+        // Auth tabs (no-op if hero auth block removed from landing)
+        function switchAuthTab(tab) {
+            const signupForm = document.getElementById('signup-form');
+            const signinForm = document.getElementById('signin-form');
+            if (!signupForm || !signinForm) return;
+            document.querySelectorAll('.auth-tab').forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'signup' && i === 0) || (tab === 'signin' && i === 1));
+            });
+            signupForm.classList.toggle('active', tab === 'signup');
+            signinForm.classList.toggle('active', tab === 'signin');
+            hideMessages();
+        }
+
+        function hideMessages() {
+            const err = document.getElementById('auth-error');
+            const ok = document.getElementById('auth-success');
+            if (err) err.classList.remove('show');
+            if (ok) ok.classList.remove('show');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('auth-error');
+            const ok = document.getElementById('auth-success');
+            if (!el) return;
+            el.textContent = msg;
+            el.classList.add('show');
+            if (ok) ok.classList.remove('show');
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('auth-success');
+            const err = document.getElementById('auth-error');
+            if (!el) return;
+            el.textContent = msg;
+            el.classList.add('show');
+            if (err) err.classList.remove('show');
+        }
+
+        // Sign Up
+        async function handleSignUp(e) {
+            e.preventDefault();
+            const btn = document.getElementById('signup-btn');
+            if (!btn) return;
+            const name = document.getElementById('signup-name')?.value;
+            const email = document.getElementById('signup-email')?.value;
+            const password = document.getElementById('signup-password')?.value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            hideMessages();
+            
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, full_name: name })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && (data.requiresVerification || data.message)) {
+                    showSuccess(data.message || 'تم إنشاء الحساب! تحقق من بريدك لتفعيل الحساب.');
+                } else if (data.error) {
+                    showError(data.error);
+                } else {
+                    showSuccess(data.message || 'Account created! Please check your email to verify.');
+                }
+            } catch (err) {
+                showError('Connection error. Please try again.');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = translations[currentLang].authCreateAccount || 'Create Free Account';
+        }
+
+        // Sign In
+        async function handleSignIn(e) {
+            e.preventDefault();
+            const btn = document.getElementById('signin-btn');
+            if (!btn) return;
+            const email = document.getElementById('signin-email')?.value;
+            const password = document.getElementById('signin-password')?.value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            hideMessages();
+            
+            try {
+                const res = await fetch('/api/auth/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (data.token) {
+                    localStorage.setItem('oplogica-token', data.token);
+                    window.location.href = '/chat';
+                } else {
+                    showError(data.error || 'Invalid email or password.');
+                }
+            } catch (err) {
+                showError('Connection error. Please try again.');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = translations[currentLang].authSigninBtn || 'Sign In';
+        }
+
+        // Demo
+        function tryDemo() {
+            window.location.href = '/chat';
+        }
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLang);
+            
+            // Check if logged in
+            const token = localStorage.getItem('oplogica-token');
+            if (token) {
+                // Update nav buttons
+                document.querySelector('.nav-actions .btn-ghost').textContent = 'Dashboard';
+                document.querySelector('.nav-actions .btn-ghost').href = '/chat';
+                document.querySelector('.nav-actions .btn-primary').textContent = 'Open App';
+                document.querySelector('.nav-actions .btn-primary').href = '/chat';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,3093 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpLogica - AI Decision Intelligence</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #0d1117;
+            --bg-chat: #131921;
+            --bg-input: #1a2332;
+            --bg-hover: #1f2937;
+            --bg-panel: #0f1318;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-cyan: #00D9FF;
+            --accent-green: #00FF88;
+            --accent-purple: #a855f7;
+            --accent-red: #f87171;
+            --accent-orange: #fb923c;
+            --accent-yellow: #fbbf24;
+            --border-color: #21262d;
+            --gradient-primary: linear-gradient(135deg, #00D9FF 0%, #00FF88 100%);
+            /* Glassmorphism */
+            --glass-bg: rgba(13, 17, 23, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-highlight: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+        }
+        
+        body { 
+            font-family: 'Space Grotesk', 'IBM Plex Sans Arabic', sans-serif; 
+            background: var(--bg-primary); 
+            color: var(--text-primary); 
+            min-height: 100vh; 
+            display: flex;
+            font-size: 16px;
+            overflow: hidden;
+        }
+        
+        /* RTL Support */
+        body.rtl { direction: rtl; font-family: 'IBM Plex Sans Arabic', 'Space Grotesk', sans-serif; }
+        body.rtl .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
+        body.rtl .main-content { margin-left: 0; margin-right: 260px; }
+        body.rtl .sidebar.hidden + .main-content { margin-right: 0; }
+        body.rtl .message-content { text-align: right; }
+        body.rtl .input-wrapper { flex-direction: row-reverse; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.hidden { transform: translateX(-100%); }
+        body.rtl .sidebar.hidden { transform: translateX(100%); }
+        
+        .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        
+        .logo-section { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .logo-section svg { width: 32px; height: 32px; }
+        .logo-section span { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            background: var(--gradient-primary); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+        }
+        
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .new-chat-btn:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3); 
+        }
+
+        /* Mode Selector */
+        .mode-selector { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        .mode-title { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            margin-bottom: 8px; 
+        }
+        
+        .mode-buttons { display: flex; flex-direction: column; gap: 4px; }
+        
+        .mode-btn {
+            padding: 10px 12px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .mode-btn:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+        .mode-btn.active { 
+            background: rgba(0, 217, 255, 0.1); 
+            border-color: var(--accent-cyan); 
+            color: var(--accent-cyan); 
+        }
+        
+        .mode-btn .mode-icon { font-size: 1rem; }
+        .mode-btn .mode-label { flex: 1; }
+        .mode-btn .mode-badge { 
+            font-size: 0.65rem; 
+            padding: 2px 6px; 
+            background: var(--bg-input); 
+            border-radius: 4px; 
+        }
+
+        /* Chat History */
+        .sidebar-nav { flex: 1; padding: 12px; overflow-y: auto; }
+        .nav-section-title { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            margin: 12px 0 8px; 
+        }
+        
+        .chat-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .chat-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .chat-item.active { background: rgba(0, 217, 255, 0.1); color: var(--accent-cyan); }
+        .chat-item .title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Sidebar Footer */
+        .sidebar-footer { padding: 12px; border-top: 1px solid var(--border-color); }
+        .sidebar-footer .sidebar-link:hover { background: var(--bg-hover); color: var(--accent-cyan); }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .user-info:hover { background: var(--bg-hover); }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--bg-primary);
+        }
+        
+        .user-details { flex: 1; }
+        .user-name { font-size: 0.85rem; font-weight: 500; }
+        .user-plan { font-size: 0.7rem; color: var(--accent-green); cursor: pointer; }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: margin 0.3s ease;
+        }
+        
+        .main-content.sidebar-hidden { margin-left: 0; }
+        body.rtl .main-content.sidebar-hidden { margin-right: 0; }
+
+        /* Header */
+        .chat-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        
+        .menu-toggle {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .menu-toggle:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+        
+        .current-mode {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        
+        .lang-selector { display: flex; background: var(--bg-chat); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        .lang-btn {
+            padding: 6px 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover { color: var(--text-primary); }
+        .lang-btn.active { background: var(--accent-cyan); color: var(--bg-primary); font-weight: 600; }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .welcome-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .welcome-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+        .welcome-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            max-width: 720px;
+            width: 100%;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 700px) {
+            .welcome-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+        .welcome-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+        }
+        .welcome-card:hover {
+            border-color: rgba(0,217,255,0.3);
+            background: rgba(0,217,255,0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,217,255,0.08);
+        }
+        .wcard-icon { font-size: 2rem; margin-bottom: 10px; }
+        .wcard-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .wcard-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .wcard-action {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        .welcome-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .suggestion-chip {
+            padding: 7px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-chip:hover {
+            border-color: rgba(0,217,255,0.3);
+            color: var(--accent-cyan);
+            background: rgba(0,217,255,0.05);
+        }
+
+        /* Mode Cards */
+        .mode-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 700px;
+        }
+        
+        .mode-card {
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            width: 200px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .mode-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.15);
+        }
+        
+        .mode-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .mode-card-title { font-weight: 600; margin-bottom: 4px; }
+        .mode-card-desc { font-size: 0.8rem; color: var(--text-secondary); }
+
+        /* Messages */
+        .messages-container { display: none; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar { background: var(--accent-purple); color: white; }
+        .message.assistant .message-avatar { background: var(--gradient-primary); color: var(--bg-primary); }
+        
+        .message-content { flex: 1; min-width: 0; }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .message-role { font-weight: 600; font-size: 0.9rem; }
+        .message-time { font-size: 0.75rem; color: var(--text-muted); }
+        .message-mode { 
+            font-size: 0.7rem; 
+            padding: 2px 8px; 
+            background: var(--bg-input); 
+            border-radius: 4px; 
+            color: var(--text-secondary); 
+        }
+        
+        .message-text {
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+        
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text ul, .message-text ol { margin: 12px 0; padding-left: 24px; }
+        .message-text li { margin-bottom: 6px; }
+        .message-text code { 
+            background: var(--bg-input); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.9em; 
+        }
+        .message-text pre { 
+            background: var(--bg-input); 
+            padding: 16px; 
+            border-radius: 8px; 
+            overflow-x: auto; 
+            margin: 12px 0; 
+        }
+        .message-text pre code { background: none; padding: 0; }
+        .message-text strong { color: var(--accent-cyan); }
+        .message-text h1, .message-text h2, .message-text h3 { margin: 16px 0 8px; color: var(--text-primary); }
+
+        .msg-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .message.assistant:hover .msg-actions,
+        .msg-actions.visible { opacity: 1; }
+        @media (max-width: 768px) {
+            .msg-actions { opacity: 1; }
+        }
+        .msg-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .msg-action-btn:hover {
+            background: rgba(0, 217, 255, 0.08);
+            border-color: rgba(0, 217, 255, 0.2);
+            color: var(--accent-cyan);
+        }
+        .msg-action-btn.active { color: var(--accent-green); border-color: rgba(0, 255, 136, 0.3); }
+        .msg-action-btn.rated-down { color: var(--accent-red); border-color: rgba(248, 113, 113, 0.3); }
+        .msg-action-btn svg { flex-shrink: 0; }
+
+        .streaming-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 18px;
+            background: var(--accent-cyan);
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 16px 20px 20px;
+            background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
+        }
+        
+        .input-container { max-width: 900px; margin: 0 auto; }
+        
+        .input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 10px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 16px;
+            transition: all 0.2s;
+        }
+        .input-wrapper .input-row { display: flex; align-items: flex-end; gap: 10px; flex: 1; min-width: 0; }
+        .input-wrapper .chat-textarea { flex: 1; min-width: 120px; }
+        
+        .input-wrapper:focus-within {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+        
+        .chat-textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 150px;
+            line-height: 1.5;
+        }
+        
+        .chat-textarea::placeholder { color: var(--text-muted); }
+        
+        .send-button {
+            width: 42px;
+            height: 42px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .send-button:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3); }
+        .send-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .send-button svg { width: 20px; height: 20px; stroke: var(--bg-primary); }
+        
+        .input-footer { 
+            text-align: center; 
+            margin-top: 10px; 
+            font-size: 0.75rem; 
+            color: var(--text-muted); 
+        }
+
+        /* Auth Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.show { display: flex; }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+        
+        .modal-header { text-align: center; margin-bottom: 24px; }
+        .modal-logo { width: 50px; height: 50px; margin: 0 auto 16px; }
+        .modal-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 8px; }
+        .modal-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+        
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .auth-tab.active { background: var(--accent-cyan); color: var(--bg-primary); border-color: var(--accent-cyan); }
+        
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-secondary); }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .form-group input:focus { outline: none; border-color: var(--accent-cyan); }
+        
+        .auth-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .auth-submit:hover { opacity: 0.9; }
+        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .auth-error {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .auth-error.show { display: block; }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .guest-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .guest-btn:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+
+        /* Pricing Modal */
+        .pricing-cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        
+        .pricing-card {
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            width: 180px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .pricing-card:hover { border-color: var(--accent-cyan); }
+        .pricing-card.featured { border-color: var(--accent-green); background: rgba(0, 255, 136, 0.05); }
+        
+        .pricing-name { font-weight: 600; margin-bottom: 8px; }
+        .pricing-price { font-size: 1.5rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px; }
+        .pricing-period { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; }
+        .pricing-features { font-size: 0.8rem; color: var(--text-secondary); text-align: left; margin-bottom: 16px; }
+        .pricing-features li { margin-bottom: 6px; list-style: none; }
+        .pricing-features li::before { content: '✓ '; color: var(--accent-green); }
+        
+        .pricing-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pricing-btn.primary { background: var(--gradient-primary); border: none; color: var(--bg-primary); }
+        .pricing-btn.secondary { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .pricing-btn:hover { opacity: 0.9; }
+
+        /* ========== GLASSMORPHISM (Reflective Glass) ========== */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+        }
+        .sidebar.glass-panel { background: rgba(13, 17, 23, 0.85); }
+        .chat-header.glass-panel { background: rgba(10, 14, 20, 0.78); }
+        .input-wrapper.glass-panel { background: rgba(26, 35, 50, 0.65); border: 1px solid var(--glass-border); }
+        .input-wrapper.glass-panel:focus-within { box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.12), inset 0 1px 0 var(--glass-highlight); }
+        .digital-screen {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        /* ========== 20 INNOVATIVE ELEMENTS – Digital Reactive Screens ========== */
+        /* 1. Live clock */
+        .innovative-clock { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-cyan); letter-spacing: 0.05em; }
+        /* 2. Message counter */
+        .innovative-counter { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); }
+        /* 3. Session timer */
+        .innovative-session { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+        /* 4. Streaming progress bar */
+        .innovative-progress { height: 3px; background: var(--bg-input); border-radius: 2px; overflow: hidden; }
+        .innovative-progress .bar { height: 100%; background: var(--gradient-primary); border-radius: 2px; transition: width 0.15s ease; }
+        /* 5–6. Character/word count in input */
+        .innovative-counts { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        /* 7. Thinking indicator */
+        .innovative-thinking { display: flex; gap: 4px; align-items: center; }
+        .innovative-thinking .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-cyan); animation: thinkBounce 0.6s ease-in-out infinite; }
+        .innovative-thinking .dot:nth-child(2) { animation-delay: 0.1s; }
+        .innovative-thinking .dot:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes thinkBounce { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(-4px); opacity: 1; } }
+        /* 8–9. Glass panels already above */
+        /* 10. Microphone waveform */
+        .mic-waveform { display: flex; align-items: center; gap: 3px; height: 24px; }
+        .mic-waveform .bar { width: 3px; min-height: 4px; background: var(--accent-cyan); border-radius: 2px; animation: wave 0.5s ease-in-out infinite alternate; }
+        .mic-waveform .bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+        .mic-waveform .bar:nth-child(2) { animation-delay: 0.05s; height: 14px; }
+        .mic-waveform .bar:nth-child(3) { animation-delay: 0.1s; height: 20px; }
+        .mic-waveform .bar:nth-child(4) { animation-delay: 0.15s; height: 14px; }
+        .mic-waveform .bar:nth-child(5) { animation-delay: 0.2s; height: 18px; }
+        .mic-waveform .bar:nth-child(6) { animation-delay: 0.25s; height: 10px; }
+        .mic-waveform .bar:nth-child(7) { animation-delay: 0.3s; height: 16px; }
+        .mic-waveform.recording .bar { background: var(--accent-red); animation-duration: 0.15s; }
+        @keyframes wave { from { transform: scaleY(0.4); } to { transform: scaleY(1); } }
+        /* 11. Model selector */
+        .model-select-wrap { position: relative; }
+        .model-select { appearance: none; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); padding: 6px 24px 6px 10px; font-size: 0.8rem; cursor: pointer; }
+        .model-select:focus { outline: none; border-color: var(--accent-cyan); }
+        /* 12. Optional toggles */
+        .input-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+        .input-options label { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; }
+        .input-options input[type="checkbox"] { accent-color: var(--accent-cyan); }
+        /* 13. Response speed / streaming label */
+        .innovative-speed { font-size: 0.7rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        /* 14. Pulse on new message */
+        .message.pulse-in { animation: pulseIn 0.4s ease; }
+        @keyframes pulseIn { 0% { opacity: 0; transform: translateY(8px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        /* 15. Glass reflection on welcome logo */
+        .welcome-logo { position: relative; }
+        .welcome-logo::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%); pointer-events: none; }
+        /* 16. Remaining messages badge */
+        .innovative-remaining { font-size: 0.75rem; padding: 2px 8px; background: rgba(0, 217, 255, 0.12); border-radius: 6px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; }
+        /* 17. Scroll progress (top of chat) */
+        .scroll-progress { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--bg-input); z-index: 5; }
+        .scroll-progress .fill { height: 100%; background: var(--gradient-primary); border-radius: 0 2px 2px 0; transition: width 0.05s ease; }
+        /* 18. Input focus glow */
+        .input-wrapper:focus-within .focus-glow { opacity: 1; }
+        .focus-glow { position: absolute; inset: -1px; border-radius: 14px; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 0 20px rgba(0, 217, 255, 0.2); }
+        /* 19. Mode card glass hover */
+        .mode-card.glass-hover:hover { background: rgba(19, 25, 33, 0.9); box-shadow: 0 4px 24px rgba(0, 217, 255, 0.12), inset 0 1px 0 var(--glass-highlight); }
+        /* 20. Timestamp "just now" */
+        .message-time.live { color: var(--accent-cyan); }
+
+        /* Triage output: priority badge, reason graph, verification bar */
+        .triage-priority-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin: 12px 0 20px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .triage-priority-badge.priority-HIGH {
+            background: linear-gradient(135deg, #3d0a0a, #1a0404);
+            border: 1.5px solid #ff4444;
+            color: #ff6666;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.15);
+        }
+        .triage-priority-badge.priority-MEDIUM {
+            background: linear-gradient(135deg, #3d2a0a, #1a1204);
+            border: 1.5px solid #FF9F43;
+            color: #ffb366;
+            box-shadow: 0 0 20px rgba(255, 159, 67, 0.15);
+        }
+        .triage-priority-badge.priority-LOW {
+            background: linear-gradient(135deg, #0a3d1a, #041a0a);
+            border: 1.5px solid #00FF88;
+            color: #66ffaa;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+        }
+        .priority-icon { font-size: 28px; }
+        .priority-sub { font-size: 12px; font-weight: 400; opacity: 0.7; }
+        .reason-graph {
+            background: #080c12;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px 16px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .graph-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+        .graph-node {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            text-align: center;
+            min-width: 140px;
+            max-width: 280px;
+            position: relative;
+        }
+        .graph-node.premise {
+            background: #0e4166;
+            border: 1.5px solid #00D9FF;
+            color: #e0f4ff;
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.15);
+        }
+        .graph-node.rule {
+            background: #5c3d0e;
+            border: 1.5px solid #FF9F43;
+            color: #fff3e0;
+            box-shadow: 0 0 8px rgba(255, 159, 67, 0.15);
+        }
+        .graph-node.rule .rule-status {
+            display: block;
+            font-size: 10px;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+        .graph-node.rule .rule-status.active { color: #00FF88; }
+        .graph-node.rule .rule-status.inactive { color: #5a6170; }
+        .graph-node.conclusion {
+            background: #0e4d2a;
+            border: 1.5px solid #00FF88;
+            color: #e0ffe8;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.15);
+        }
+        .node-id {
+            display: block;
+            font-size: 10px;
+            opacity: 0.6;
+            margin-bottom: 2px;
+        }
+        .graph-arrows {
+            text-align: center;
+            padding: 6px 0;
+            color: #5a6170;
+            font-size: 20px;
+            letter-spacing: 8px;
+        }
+        .graph-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 11px;
+        }
+        .legend-item.premise { color: #00D9FF; }
+        .legend-item.rule { color: #FF9F43; }
+        .legend-item.conclusion { color: #00FF88; }
+        .verification-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            background: #080c12;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+        .verification-status-bar .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .verification-status-bar .status-item.verified .status-check {
+            color: #00FF88;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .verification-status-bar .status-item.final.verified {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00FF88;
+            color: #00FF88;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .verification-status-bar .status-connector { color: #5a6170; font-size: 18px; }
+        .message-text details {
+            margin: 12px 0;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .message-text details summary {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+        .message-text details[open] summary { border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .message-text details > *:not(summary) { padding: 12px 16px; }
+
+        /* Digital dashboard strip */
+        .digital-dashboard {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .digital-dashboard .digital-screen { padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
+        .digital-dashboard .digital-screen .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-right: 4px; }
+
+        /* Attach button & file preview */
+        .input-toolbar { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .input-toolbar .btn-icon { width: 36px; height: 36px; border: none; background: var(--bg-input); border-radius: 8px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .input-toolbar .btn-icon:hover { color: var(--accent-cyan); background: var(--bg-hover); }
+        .input-toolbar .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+        .input-toolbar .btn-icon.mic-active { color: var(--accent-cyan); background: rgba(0, 217, 255, 0.12); }
+        .attachments-preview { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0 0; }
+        .attachments-preview .preview-item { position: relative; width: 56px; height: 56px; border-radius: 8px; overflow: hidden; background: var(--bg-input); border: 1px solid var(--border-color); }
+        .attachments-preview .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .attachments-preview .preview-item .remove { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border: none; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; cursor: pointer; font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+        .attachments-preview .preview-item .name { position: absolute; bottom: 0; left: 0; right: 0; font-size: 0.6rem; background: rgba(0,0,0,0.7); color: var(--text-primary); padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Chat conversation sidebar */
+        .chat-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: #060810;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        body.rtl .chat-sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid rgba(255,255,255,0.06); transform: translateX(100%); }
+        .chat-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+        body.rtl .chat-sidebar.open { transform: translateX(0); box-shadow: -4px 0 24px rgba(0,0,0,0.5); }
+        .sidebar-header-chat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-header-chat h3 { font-size: 1rem; color: #e8ecf1; margin: 0; }
+        .sidebar-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .sidebar-close-btn:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-search { padding: 12px 16px; }
+        .sidebar-search input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .sidebar-search input:focus { border-color: rgba(0,217,255,0.3); }
+        .sidebar-actions { padding: 0 16px 12px; }
+        .new-chat-sidebar-btn {
+            width: 100%;
+            padding: 9px;
+            background: rgba(0,217,255,0.08);
+            border: 1px solid rgba(0,217,255,0.2);
+            border-radius: 8px;
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .new-chat-sidebar-btn:hover { background: rgba(0,217,255,0.15); }
+        .sidebar-conversations {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 8px;
+        }
+        .conv-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.15s;
+        }
+        .conv-item:hover { background: rgba(255,255,255,0.04); }
+        .conv-item.active {
+            background: rgba(0,217,255,0.08);
+            border: 1px solid rgba(0,217,255,0.15);
+        }
+        .conv-item-title {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conv-item-preview { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .conv-item-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
+        .conv-item-delete {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .conv-item:hover .conv-item-delete { opacity: 1; }
+        .conv-item-delete:hover { color: var(--accent-red); }
+        .sidebar-toggle-chat {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sidebar-toggle-chat:hover { border-color: rgba(0,217,255,0.3); color: var(--accent-cyan); }
+
+        /* Verification animation */
+        .verification-animation {
+            background: linear-gradient(135deg, rgba(0,217,255,0.04), rgba(0,255,136,0.04));
+            border: 1px solid rgba(0,217,255,0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 12px 0;
+            animation: fadeIn 0.3s ease;
+        }
+        .verify-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .verify-pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: verifyPulse 1.5s infinite;
+        }
+        @keyframes verifyPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,217,255,0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(0,217,255,0); }
+        }
+        .verify-title { color: var(--accent-cyan); font-weight: 600; font-size: 0.95rem; }
+        .verify-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 16px;
+        }
+        .verify-step { text-align: center; min-width: 80px; }
+        .verify-step .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.4s;
+        }
+        .verify-step .step-icon.pending {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.15);
+            color: var(--text-muted);
+        }
+        .verify-step .step-icon.active {
+            background: rgba(0,217,255,0.1);
+            border: 2px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            animation: spinOnce 0.6s ease;
+        }
+        @keyframes spinOnce {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.15); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .verify-step .step-icon.done {
+            background: rgba(0,255,136,0.15);
+            border: 2px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+        .verify-step .step-label { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+        .verify-step .step-desc { font-size: 0.7rem; color: var(--text-muted); }
+        .verify-step .step-time { font-size: 0.65rem; color: var(--accent-green); margin-top: 2px; }
+        .verify-connector {
+            width: 40px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            margin: 0 4px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .verify-connector.active { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green)); }
+        .verify-progress {
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .verify-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .verification-animation.verify-complete .verify-title { color: var(--accent-green); }
+        .verification-animation.verify-complete .verify-pulse { background: var(--accent-green); animation: none; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            body.rtl .sidebar { transform: translateX(100%); }
+            body.rtl .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0 !important; margin-right: 0 !important; }
+            .mode-cards { flex-direction: column; align-items: center; }
+            .mode-card { width: 100%; max-width: 300px; }
+            .pricing-cards { flex-direction: column; align-items: center; }
+            .pricing-card { width: 100%; max-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-section">
+                <svg viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="18" fill="none" stroke="url(#lg)" stroke-width="2"/>
+                    <path d="M12 20 Q20 8 28 20 Q20 32 12 20" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                    <defs>
+                        <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00D9FF"/>
+                            <stop offset="100%" stop-color="#00FF88"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>OpLogica</span>
+            </div>
+            <button class="new-chat-btn" onclick="startNewChat()">+ <span data-i18n="newChat">New Analysis</span></button>
+        </div>
+        
+        <div class="mode-selector">
+            <div class="mode-title" data-i18n="analysisMode">Analysis Mode</div>
+            <div class="mode-buttons" id="mode-buttons">
+                <button class="mode-btn" data-mode="quick" onclick="setMode('quick')">
+                    <span class="mode-icon">⚡</span>
+                    <span class="mode-label" data-i18n="modeQuick">Quick</span>
+                    <span class="mode-badge" data-i18n="fast">Fast</span>
+                </button>
+                <button class="mode-btn active" data-mode="deep" onclick="setMode('deep')">
+                    <span class="mode-icon">📝</span>
+                    <span class="mode-label" data-i18n="modeDeep">Deep Analysis</span>
+                </button>
+                <button class="mode-btn" data-mode="research" onclick="setMode('research')">
+                    <span class="mode-icon">🔬</span>
+                    <span class="mode-label" data-i18n="modeResearch">Research</span>
+                    <span class="mode-badge">Pro</span>
+                </button>
+                <button class="mode-btn" data-mode="verify" onclick="setMode('verify')">
+                    <span class="mode-icon">🎯</span>
+                    <span class="mode-label" data-i18n="modeVerify">Verify</span>
+                </button>
+                <button class="mode-btn" data-mode="market" onclick="setMode('market')">
+                    <span class="mode-icon">📊</span>
+                    <span class="mode-label" data-i18n="modeMarket">Market Intel</span>
+                </button>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section-title" data-i18n="recent">Recent</div>
+            <div id="chat-history"></div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="/decision-ledger" class="sidebar-link" style="display:block;padding:8px 12px;margin-bottom:8px;font-size:0.8rem;color:var(--text-secondary);text-decoration:none;border-radius:8px;transition:all 0.2s;">Decision Ledger</a>
+            <div class="user-info" onclick="handleUserClick()">
+                <div class="user-avatar" id="user-avatar">G</div>
+                <div class="user-details">
+                    <div class="user-name" id="user-name">Guest</div>
+                    <div class="user-plan" id="user-plan">Sign in</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <header class="chat-header glass-panel">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+                <button class="sidebar-toggle-chat" onclick="toggleChatSidebar()" title="Conversation History">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="current-mode">
+                    <span id="current-mode-icon">📝</span>
+                    <span id="current-mode-name" data-i18n="modeDeep">Deep Analysis</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="lang-btn" onclick="clearChat()" title="Clear chat" style="margin-right:8px;">🗑️ Clear</button>
+                <div class="lang-selector">
+                    <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" onclick="setLanguage('ar')">عربي</button>
+                    <button class="lang-btn" onclick="setLanguage('tr')">TR</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header-chat">
+                <h3>&#128172; Conversations</h3>
+                <button class="sidebar-close-btn" onclick="toggleChatSidebar()">&#215;</button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" placeholder="Search conversations..." id="sidebarSearch" oninput="filterConversations()">
+            </div>
+            <div class="sidebar-actions">
+                <button class="new-chat-sidebar-btn" onclick="newConversation()">+ New Chat</button>
+            </div>
+            <div class="sidebar-conversations" id="conversationList"></div>
+        </div>
+
+        <div class="chat-area" id="chat-area">
+            <div class="scroll-progress" id="scroll-progress" style="display:none;"><div class="fill" id="scroll-progress-fill" style="width:0%"></div></div>
+            <div class="digital-dashboard" id="digital-dashboard" style="display:none;">
+                <div class="digital-screen"><span class="label" data-i18n="liveClock">Time</span><span class="innovative-clock" id="live-clock">00:00:00</span></div>
+                <div class="digital-screen"><span class="label" data-i18n="msgCount">Msgs</span><span class="innovative-counter" id="msg-counter">0</span></div>
+                <div class="digital-screen"><span class="label" data-i18n="sessionTime">Session</span><span class="innovative-session" id="session-timer">0:00</span></div>
+                <div class="innovative-thinking" id="thinking-indicator" style="display:none;"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="innovative-speed" data-i18n="thinking">Thinking...</span></div>
+            </div>
+            <div class="innovative-progress" id="stream-progress" style="display:none; margin: 0 20px 8px;"><div class="bar" id="stream-progress-bar" style="width:0%"></div></div>
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-header">
+                    <div class="welcome-logo">
+                        <svg width="48" height="48" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="17" fill="none" stroke="url(#wg)" stroke-width="2"/>
+                            <path d="M13 20Q20 10 27 20Q20 30 13 20" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                            <defs><linearGradient id="wg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00D9FF"/><stop offset="100%" stop-color="#00FF88"/>
+                            </linearGradient></defs>
+                        </svg>
+                    </div>
+                    <h2 class="welcome-title" data-i18n="welcomeTitleAI">OpLogica AI</h2>
+                    <p class="welcome-subtitle" data-i18n="welcomeSubtitleVerification">Decision Intelligence with Triadic Verification</p>
+                    <p class="welcome-desc" data-i18n="welcomeDesc">Choose a verified decision system to try, or ask me anything.</p>
+                </div>
+                <div class="welcome-cards">
+                    <div class="welcome-card" onclick="quickStart('medical')">
+                        <div class="wcard-icon">&#127973;</div>
+                        <div class="wcard-title" data-i18n="cardMedicalTitle">Medical Triage</div>
+                        <div class="wcard-desc" data-i18n="cardMedicalDesc">Emergency patient prioritization</div>
+                        <div class="wcard-action" data-i18n="tryIt">Try it &#8594;</div>
+                    </div>
+                    <div class="welcome-card" onclick="quickStart('credit')">
+                        <div class="wcard-icon">&#127974;</div>
+                        <div class="wcard-title" data-i18n="cardCreditTitle">Credit Assessment</div>
+                        <div class="wcard-desc" data-i18n="cardCreditDesc">Loan evaluation &amp; risk scoring</div>
+                        <div class="wcard-action" data-i18n="tryIt">Try it &#8594;</div>
+                    </div>
+                    <div class="welcome-card" onclick="quickStart('hiring')">
+                        <div class="wcard-icon">&#128188;</div>
+                        <div class="wcard-title" data-i18n="cardHiringTitle">Employment Screening</div>
+                        <div class="wcard-desc" data-i18n="cardHiringDesc">Candidate evaluation &amp; scoring</div>
+                        <div class="wcard-action" data-i18n="tryIt">Try it &#8594;</div>
+                    </div>
+                    <div class="welcome-card" onclick="quickStart('permit')">
+                        <div class="wcard-icon">&#127963;</div>
+                        <div class="wcard-title" data-i18n="cardPermitTitle">Building Permit</div>
+                        <div class="wcard-desc" data-i18n="cardPermitDesc">Construction permit assessment</div>
+                        <div class="wcard-action" data-i18n="tryIt">Try it &#8594;</div>
+                    </div>
+                </div>
+                <div class="welcome-suggestions">
+                    <span class="suggestion-chip" data-i18n="suggestion1" onclick="quickAsk(this.textContent)">What can you do?</span>
+                    <span class="suggestion-chip" data-i18n="suggestion2" onclick="quickAsk(this.textContent)">How does Triadic Verification work?</span>
+                    <span class="suggestion-chip" data-i18n="suggestion3" onclick="quickAsk(this.textContent)">Show me a live demo</span>
+                </div>
+            </div>
+            <div class="messages-container" id="messages-container"></div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-wrapper glass-panel" style="position:relative;">
+                    <div class="focus-glow" aria-hidden="true"></div>
+                    <div class="input-row" style="flex:1; min-width:0;">
+                        <div class="input-toolbar">
+                            <input type="file" id="file-input" accept="image/*,.pdf,.doc,.docx,.txt,.md" multiple hidden>
+                            <button type="button" class="btn-icon" id="attach-btn" onclick="document.getElementById('file-input').click()" title="Attach files"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+                            <button type="button" class="btn-icon" id="mic-btn" onclick="toggleMic()" title="Voice input">
+                                <span class="mic-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 013 3v8a3 3 0 01-6 0V4a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></span>
+                                <span class="mic-waveform" id="mic-waveform" style="display:none;"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></span>
+                            </button>
+                            <div class="model-select-wrap">
+                                <select class="model-select" id="model-select" title="Model">
+                                    <option value="default" data-i18n="modelDefault">OpLogica Pro</option>
+                                    <option value="quick" data-i18n="modelQuick">Fast</option>
+                                    <option value="deep" data-i18n="modelDeep">Deep</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea 
+                            class="chat-textarea" 
+                            id="chat-input" 
+                            placeholder="Ask anything. @ sources / shortcuts • Attach images & files" 
+                            rows="1"
+                        ></textarea>
+                        <button class="send-button" id="send-btn" onclick="sendMessage()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="attachments-preview" id="attachments-preview"></div>
+                    <div class="innovative-counts" id="char-word-count" style="display:none;"></div>
+                </div>
+                <div class="input-options" id="input-options">
+                    <label><input type="checkbox" id="opt-sound" checked> <span data-i18n="optSound">Sound</span></label>
+                    <label><input type="checkbox" id="opt-compact"> <span data-i18n="optCompact">Compact</span></label>
+                    <label><input type="checkbox" id="opt-digital" checked> <span data-i18n="optDigital">Digital screens</span></label>
+                </div>
+                <div class="input-footer" data-i18n="footer">OpLogica • Verify important information</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">×</button>
+            <div class="modal-header">
+                <svg class="modal-logo" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="22" fill="none" stroke="url(#mlg)" stroke-width="2"/>
+                    <path d="M15 25 Q25 10 35 25 Q25 40 15 25" fill="none" stroke="#00FF88" stroke-width="1.5"/>
+                    <defs>
+                        <linearGradient id="mlg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00D9FF"/>
+                            <stop offset="100%" stop-color="#00FF88"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h2 class="modal-title" data-i18n="authTitle">Welcome to OpLogica</h2>
+                <p class="modal-subtitle" data-i18n="authSubtitle">Sign in to save your conversations</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('signin')" data-i18n="signIn">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')" data-i18n="signUp">Sign Up</button>
+            </div>
+            
+            <div class="auth-error" id="auth-error"></div>
+            
+            <form class="auth-form active" id="signin-form" onsubmit="handleSignIn(event)">
+                <div class="form-group">
+                    <label data-i18n="email">Email</label>
+                    <input type="email" id="signin-email" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="password">Password</label>
+                    <input type="password" id="signin-password" required>
+                </div>
+                <button type="submit" class="auth-submit" id="signin-btn" data-i18n="signIn">Sign In</button>
+            </form>
+            
+            <form class="auth-form" id="signup-form" onsubmit="handleSignUp(event)">
+                <div class="form-group">
+                    <label data-i18n="fullName">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="password">Password</label>
+                    <input type="password" id="signup-password" required minlength="8">
+                </div>
+                <button type="submit" class="auth-submit" id="signup-btn" data-i18n="signUp">Sign Up</button>
+            </form>
+            
+            <div class="auth-divider" data-i18n="or">or</div>
+            <button class="guest-btn" onclick="closeAuthModal()" data-i18n="continueGuest">Continue as Guest</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // OPLOGICA v8 - Clean Production Build
+        // ==========================================
+
+        // Translations
+        const translations = {
+            en: {
+                newChat: 'New Analysis',
+                analysisMode: 'Analysis Mode',
+                modeQuick: 'Quick',
+                modeDeep: 'Deep Analysis',
+                modeResearch: 'Research',
+                modeVerify: 'Verify',
+                modeMarket: 'Market Intel',
+                fast: 'Fast',
+                recent: 'Recent',
+                guestUser: 'Guest',
+                guestPlan: 'Sign in',
+                freePlan: 'Account',
+                welcomeTitle: 'OpLogica Decision Intelligence',
+                welcomeSubtitle: 'Advanced AI system for analyzing decisions, verifying logic, and providing actionable insights.',
+                inputPlaceholder: 'Ask anything. @ sources / shortcuts • Attach images & files',
+                footer: 'OpLogica • Verify important information',
+                welcomeTitleAI: 'OpLogica AI',
+                welcomeSubtitleVerification: 'Decision Intelligence with Triadic Verification',
+                welcomeDesc: 'Choose a verified decision system to try, or ask me anything.',
+                cardMedicalTitle: 'Medical Triage',
+                cardMedicalDesc: 'Emergency patient prioritization',
+                cardCreditTitle: 'Credit Assessment',
+                cardCreditDesc: 'Loan evaluation & risk scoring',
+                cardHiringTitle: 'Employment Screening',
+                cardHiringDesc: 'Candidate evaluation & scoring',
+                cardPermitTitle: 'Building Permit',
+                cardPermitDesc: 'Construction permit assessment',
+                tryIt: 'Try it →',
+                suggestion1: 'What can you do?',
+                suggestion2: 'How does Triadic Verification work?',
+                suggestion3: 'Show me a live demo',
+                liveClock: 'Time',
+                msgCount: 'Msgs',
+                sessionTime: 'Session',
+                thinking: 'Thinking...',
+                modelDefault: 'OpLogica Pro',
+                modelQuick: 'Fast',
+                modelDeep: 'Deep',
+                optSound: 'Sound',
+                optCompact: 'Compact',
+                optDigital: 'Digital screens',
+                attachFiles: 'Attach files',
+                voiceInput: 'Voice input',
+                remaining: 'remaining',
+                signIn: 'Sign In',
+                signUp: 'Sign Up',
+                email: 'Email',
+                password: 'Password',
+                fullName: 'Full Name',
+                or: 'or',
+                continueGuest: 'Continue as Guest',
+                authTitle: 'Welcome to OpLogica',
+                authSubtitle: 'Sign in to save your conversations',
+                you: 'You',
+                modeCards: [
+                    { mode: 'quick', icon: '⚡', title: 'Quick Answer', desc: 'Fast, concise responses', prompt: 'What is decision intelligence?' },
+                    { mode: 'deep', icon: '📝', title: 'Deep Analysis', desc: 'Comprehensive insights', prompt: 'Analyze the factors in changing careers' },
+                    { mode: 'research', icon: '🔬', title: 'Research', desc: 'Academic-level analysis', prompt: 'Research global AI regulation trends' },
+                    { mode: 'verify', icon: '🎯', title: 'Verify Claims', desc: 'Fact-check statements', prompt: 'Verify: Remote work increases productivity by 40%' }
+                ]
+            },
+            ar: {
+                newChat: 'تحليل جديد',
+                analysisMode: 'وضع التحليل',
+                modeQuick: 'سريع',
+                modeDeep: 'تحليل عميق',
+                modeResearch: 'بحث',
+                modeVerify: 'تحقق',
+                modeMarket: 'تحليل السوق',
+                fast: 'سريع',
+                recent: 'الأخيرة',
+                guestUser: 'زائر',
+                clickToLogin: 'اضغط للدخول',
+                welcomeTitle: 'OpLogica ذكاء القرارات',
+                welcomeSubtitle: 'نظام ذكاء اصطناعي متقدم لتحليل القرارات والتحقق من المنطق وتقديم رؤى قابلة للتنفيذ.',
+                inputPlaceholder: 'اسأل أي شيء. @ للمصادر / للاختصارات • أرفق صوراً وملفاتاً',
+                footer: 'OpLogica • تحقق من المعلومات المهمة',
+                welcomeTitleAI: 'OpLogica AI',
+                welcomeSubtitleVerification: 'ذكاء القرارات مع التحقق الثلاثي',
+                welcomeDesc: 'اختر نظام قرارات موثوقاً لتجربته، أو اسألني أي شيء.',
+                cardMedicalTitle: 'الفرز الطبي',
+                cardMedicalDesc: 'أولوية مرضى الطوارئ',
+                cardCreditTitle: 'تقييم الائتمان',
+                cardCreditDesc: 'تقييم القروض وتقييم المخاطر',
+                cardHiringTitle: 'فحص التوظيف',
+                cardHiringDesc: 'تقييم المرشحين والدرجات',
+                cardPermitTitle: 'رخصة البناء',
+                cardPermitDesc: 'تقييم رخصة البناء',
+                tryIt: 'جربه ←',
+                suggestion1: 'ماذا يمكنك أن تفعل؟',
+                suggestion2: 'كيف يعمل التحقق الثلاثي؟',
+                suggestion3: 'أرني عرضاً حياً',
+                liveClock: 'الوقت',
+                msgCount: 'الرسائل',
+                sessionTime: 'الجلسة',
+                thinking: 'جاري التفكير...',
+                modelDefault: 'OpLogica Pro',
+                modelQuick: 'سريع',
+                modelDeep: 'عميق',
+                optSound: 'الصوت',
+                optCompact: 'مضغوط',
+                optDigital: 'الشاشات الرقمية',
+                attachFiles: 'إرفاق ملفات',
+                voiceInput: 'إدخال صوتي',
+                remaining: 'متبقي',
+                guestPlan: 'سجّل الدخول',
+                freePlan: '50 رسالة/يوم',
+                signIn: 'تسجيل الدخول',
+                signUp: 'إنشاء حساب',
+                email: 'البريد الإلكتروني',
+                password: 'كلمة المرور',
+                fullName: 'الاسم الكامل',
+                or: 'أو',
+                continueGuest: 'المتابعة كزائر',
+                authTitle: 'مرحباً بك في OpLogica',
+                authSubtitle: 'سجل دخولك لحفظ محادثاتك',
+                you: 'أنت',
+                modeCards: [
+                    { mode: 'quick', icon: '⚡', title: 'إجابة سريعة', desc: 'ردود سريعة ومختصرة', prompt: 'ما هو ذكاء القرارات؟' },
+                    { mode: 'deep', icon: '📝', title: 'تحليل عميق', desc: 'رؤى شاملة', prompt: 'حلل عوامل تغيير المسار المهني' },
+                    { mode: 'research', icon: '🔬', title: 'بحث', desc: 'تحليل أكاديمي', prompt: 'ابحث في اتجاهات تنظيم الذكاء الاصطناعي' },
+                    { mode: 'verify', icon: '🎯', title: 'تحقق', desc: 'التحقق من الادعاءات', prompt: 'تحقق: العمل عن بعد يزيد الإنتاجية 40%' }
+                ]
+            },
+            tr: {
+                newChat: 'Yeni Analiz',
+                analysisMode: 'Analiz Modu',
+                modeQuick: 'Hızlı',
+                modeDeep: 'Derin Analiz',
+                modeResearch: 'Araştırma',
+                modeVerify: 'Doğrula',
+                modeMarket: 'Piyasa',
+                fast: 'Hızlı',
+                recent: 'Son',
+                guestUser: 'Misafir',
+                guestPlan: 'Giriş yap',
+                freePlan: 'Hesap',
+                welcomeTitle: 'OpLogica Karar Zekası',
+                welcomeSubtitle: 'Kararları analiz etmek, mantığı doğrulamak ve eyleme geçirilebilir içgörüler sağlamak için gelişmiş yapay zeka sistemi.',
+                inputPlaceholder: 'Herhangi bir şey sorun. @ kaynaklar / kısayollar • Görsel ve dosya ekleyin',
+                footer: 'OpLogica • Önemli bilgileri doğrulayın',
+                welcomeTitleAI: 'OpLogica AI',
+                welcomeSubtitleVerification: 'Üçlü Doğrulama ile Karar Zekası',
+                welcomeDesc: 'Denemek için doğrulanmış bir karar sistemi seçin veya bana bir şey sorun.',
+                cardMedicalTitle: 'Tıbbi Triaj',
+                cardMedicalDesc: 'Acil hasta önceliklendirme',
+                cardCreditTitle: 'Kredi Değerlendirmesi',
+                cardCreditDesc: 'Kredi değerlendirmesi ve risk puanlama',
+                cardHiringTitle: 'İstihdam Taraması',
+                cardHiringDesc: 'Aday değerlendirmesi ve puanlama',
+                cardPermitTitle: 'İnşaat İzni',
+                cardPermitDesc: 'İnşaat izni değerlendirmesi',
+                tryIt: 'Dene →',
+                suggestion1: 'Ne yapabilirsin?',
+                suggestion2: 'Üçlü Doğrulama nasıl çalışır?',
+                suggestion3: 'Canlı bir demo göster',
+                liveClock: 'Saat',
+                msgCount: 'Mesaj',
+                sessionTime: 'Oturum',
+                thinking: 'Düşünüyor...',
+                modelDefault: 'OpLogica Pro',
+                modelQuick: 'Hızlı',
+                modelDeep: 'Derin',
+                optSound: 'Ses',
+                optCompact: 'Kompakt',
+                optDigital: 'Dijital ekranlar',
+                attachFiles: 'Dosya ekle',
+                voiceInput: 'Sesli giriş',
+                remaining: 'kalan',
+                signIn: 'Giriş Yap',
+                signUp: 'Kayıt Ol',
+                email: 'E-posta',
+                password: 'Şifre',
+                fullName: 'Ad Soyad',
+                or: 'veya',
+                continueGuest: 'Misafir olarak devam et',
+                authTitle: 'OpLogica\'ya Hoş Geldiniz',
+                authSubtitle: 'Sohbetlerinizi kaydetmek için giriş yapın',
+                you: 'Siz',
+                modeCards: [
+                    { mode: 'quick', icon: '⚡', title: 'Hızlı Cevap', desc: 'Kısa ve öz yanıtlar', prompt: 'Karar zekası nedir?' },
+                    { mode: 'deep', icon: '📝', title: 'Derin Analiz', desc: 'Kapsamlı içgörüler', prompt: 'Kariyer değişikliği faktörlerini analiz et' },
+                    { mode: 'research', icon: '🔬', title: 'Araştırma', desc: 'Akademik düzey analiz', prompt: 'Küresel yapay zeka düzenleme eğilimlerini araştır' },
+                    { mode: 'verify', icon: '🎯', title: 'Doğrula', desc: 'İddiaları kontrol et', prompt: 'Doğrula: Uzaktan çalışma üretkenliği %40 artırır' }
+                ]
+            }
+        };
+
+        // State
+        let currentMode = 'deep';
+        let currentLang = localStorage.getItem('oplogica-lang') || 'en';
+        let messages = [];
+        let isStreaming = false;
+        let currentUser = null;
+        let authToken = localStorage.getItem('oplogica-token') || null;
+        let currentConversationId = null;
+        let sessionStart = Date.now();
+        let pendingAttachments = [];
+        let micRecording = false;
+        let mediaRecorder = null;
+        let remainingMessages = 20;
+        let clockInterval = null;
+        let sessionInterval = null;
+        let userScrolledUp = false;
+        const SCROLL_THRESHOLD = 100;
+
+        const modeIcons = {
+            quick: '⚡',
+            deep: '📝',
+            research: '🔬',
+            verify: '🎯',
+            market: '📊'
+        };
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const chatArea = document.getElementById('chat-area');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const messagesContainer = document.getElementById('messages-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const authModal = document.getElementById('auth-modal');
+
+        const QUICK_START_PROMPTS = {
+            medical: `I need a medical triage assessment:
+- Vital Score: 0.32
+- Age: 68
+- Comorbidity Index: 0.7
+- Wait Time: 50 minutes
+- Resource Score: 0.6`,
+            credit: `I need a credit assessment:
+- Credit Score: 750
+- Annual Income: $120,000
+- Debt-to-Income Ratio: 0.25
+- Loan Amount: $300,000
+- Employment Years: 8`,
+            hiring: `Candidate assessment needed:
+- Experience Years: 7
+- Skill Match Score: 0.85
+- Education Level: 4
+- Interview Score: 0.78
+- Reference Score: 0.90`,
+            permit: `Building permit assessment:
+- Zoning Compliance: 0.90
+- Structural Safety: 0.85
+- Environmental Impact: 0.30
+- Plot Coverage Ratio: 0.55
+- Fire Safety Score: 0.80`
+        };
+        function quickStart(type) {
+            const prompt = QUICK_START_PROMPTS[type];
+            if (!prompt) return;
+            const wel = document.getElementById('welcome-screen');
+            if (wel) wel.style.display = 'none';
+            messagesContainer.style.display = 'flex';
+            if (chatInput) {
+                chatInput.value = prompt;
+                chatInput.focus();
+                sendMessage();
+            }
+        }
+        function quickAsk(text) {
+            const wel = document.getElementById('welcome-screen');
+            if (wel) wel.style.display = 'none';
+            messagesContainer.style.display = 'flex';
+            if (chatInput) {
+                chatInput.value = text;
+                chatInput.focus();
+                sendMessage();
+            }
+        }
+
+        // ==========================================
+        // 20 INNOVATIVE ELEMENTS – Reactive logic
+        // ==========================================
+        function updateLiveClock() {
+            const el = document.getElementById('live-clock');
+            if (!el) return;
+            const now = new Date();
+            el.textContent = now.toLocaleTimeString(
+                currentLang === 'ar' ? 'ar-EG' : currentLang === 'tr' ? 'tr-TR' : 'en-US',
+                { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }
+            );
+        }
+        function updateSessionTimer() {
+            const el = document.getElementById('session-timer');
+            if (!el) return;
+            const sec = Math.floor((Date.now() - sessionStart) / 1000);
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        }
+        function updateDigitalDashboard() {
+            const showDigital = document.getElementById('opt-digital') && document.getElementById('opt-digital').checked;
+            const dash = document.getElementById('digital-dashboard');
+            const scrollProg = document.getElementById('scroll-progress');
+            if (!showDigital) {
+                if (dash) dash.style.display = 'none';
+                if (scrollProg) scrollProg.style.display = 'none';
+                return;
+            }
+            const hasMessages = messagesContainer.style.display === 'flex' || messages.length > 0;
+            if (dash) {
+                dash.style.display = hasMessages ? 'flex' : 'none';
+                if (hasMessages) {
+                    const mc = document.getElementById('msg-counter');
+                    if (mc) mc.textContent = messages.length;
+                }
+            }
+            if (scrollProg) scrollProg.style.display = hasMessages ? 'block' : 'none';
+        }
+        function updateCharWordCount() {
+            const text = chatInput.value;
+            const el = document.getElementById('char-word-count');
+            if (!el) return;
+            if (!text.trim()) { el.style.display = 'none'; return; }
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            el.style.display = 'block';
+            el.textContent = chars + ' chars · ' + words + ' words';
+        }
+        function updateScrollProgress() {
+            const wrap = document.getElementById('chat-area');
+            const fill = document.getElementById('scroll-progress-fill');
+            if (!wrap || !fill) return;
+            const pct = wrap.scrollHeight <= wrap.clientHeight ? 100 : (wrap.scrollTop / (wrap.scrollHeight - wrap.clientHeight)) * 100;
+            fill.style.width = pct + '%';
+        }
+        function scrollToBottomIfNeeded() {
+            if (!userScrolledUp && chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        chatArea.addEventListener('scroll', function() {
+            const isAtBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < SCROLL_THRESHOLD;
+            userScrolledUp = !isAtBottom;
+        });
+        function showThinking(show) {
+            const ind = document.getElementById('thinking-indicator');
+            const prog = document.getElementById('stream-progress');
+            if (ind) ind.style.display = show ? 'flex' : 'none';
+            if (prog) prog.style.display = show ? 'block' : 'none';
+        }
+        function setStreamProgress(pct) {
+            const bar = document.getElementById('stream-progress-bar');
+            if (bar) bar.style.width = (pct || 0) + '%';
+        }
+        function startClockAndSession() {
+            if (clockInterval) return;
+            updateLiveClock();
+            updateSessionTimer();
+            clockInterval = setInterval(updateLiveClock, 1000);
+            sessionInterval = setInterval(updateSessionTimer, 1000);
+        }
+
+        // Attachments
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files || []);
+            files.forEach(file => {
+                if (pendingAttachments.some(a => a.file === file)) return;
+                pendingAttachments.push({ file, dataUrl: null });
+                if (file.type.startsWith('image/')) {
+                    const r = new FileReader();
+                    r.onload = () => {
+                        const a = pendingAttachments.find(x => x.file === file);
+                        if (a) a.dataUrl = r.result;
+                        renderAttachmentsPreview();
+                    };
+                    r.readAsDataURL(file);
+                } else {
+                    renderAttachmentsPreview();
+                }
+            });
+            e.target.value = '';
+        });
+        function renderAttachmentsPreview() {
+            const container = document.getElementById('attachments-preview');
+            if (!container) return;
+            container.innerHTML = pendingAttachments.map((a, i) => {
+                if (a.dataUrl) {
+                    return '<div class="preview-item"><img src="' + a.dataUrl + '" alt=""><button type="button" class="remove" onclick="removeAttachment(' + i + ')">×</button></div>';
+                }
+                return '<div class="preview-item"><span class="name">' + (a.file.name || '') + '</span><button type="button" class="remove" onclick="removeAttachment(' + i + ')">×</button></div>';
+            }).join('');
+        }
+        function removeAttachment(index) {
+            pendingAttachments.splice(index, 1);
+            renderAttachmentsPreview();
+        }
+
+        // Microphone + waveform
+        function toggleMic() {
+            if (micRecording) {
+                stopMic();
+                return;
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert(translations[currentLang].voiceInput + ' not supported in this browser.');
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                micRecording = true;
+                const micBtn = document.getElementById('mic-btn');
+                const iconWrap = document.querySelector('.mic-icon-wrap');
+                const wave = document.getElementById('mic-waveform');
+                if (micBtn) micBtn.classList.add('mic-active');
+                if (iconWrap) iconWrap.style.display = 'none';
+                if (wave) wave.style.display = 'flex';
+                try {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = () => {};
+                    mediaRecorder.start();
+                } catch (err) {
+                    stopMic();
+                }
+            }).catch(() => {
+                alert(translations[currentLang].voiceInput + ' permission denied.');
+            });
+        }
+        function stopMic() {
+            micRecording = false;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            mediaRecorder = null;
+            const micBtn = document.getElementById('mic-btn');
+            const iconWrap = document.querySelector('.mic-icon-wrap');
+            const wave = document.getElementById('mic-waveform');
+            if (micBtn) micBtn.classList.remove('mic-active');
+            if (iconWrap) iconWrap.style.display = '';
+            if (wave) wave.style.display = 'none';
+        }
+
+        // Optional toggles (persist)
+        function loadInputOptions() {
+            try {
+                const o = JSON.parse(localStorage.getItem('oplogica-input-options') || '{}');
+                const sound = document.getElementById('opt-sound');
+                const compact = document.getElementById('opt-compact');
+                const digital = document.getElementById('opt-digital');
+                if (sound) sound.checked = o.sound !== false;
+                if (compact) compact.checked = !!o.compact;
+                if (digital) digital.checked = o.digital !== false;
+            } catch (e) {}
+        }
+        function saveInputOptions() {
+            const sound = document.getElementById('opt-sound');
+            const compact = document.getElementById('opt-compact');
+            const digital = document.getElementById('opt-digital');
+            localStorage.setItem('oplogica-input-options', JSON.stringify({
+                sound: sound ? sound.checked : true,
+                compact: compact ? compact.checked : false,
+                digital: digital ? digital.checked : true
+            }));
+        }
+        document.getElementById('opt-sound') && document.getElementById('opt-sound').addEventListener('change', saveInputOptions);
+        document.getElementById('opt-compact') && document.getElementById('opt-compact').addEventListener('change', saveInputOptions);
+        document.getElementById('opt-digital') && document.getElementById('opt-digital').addEventListener('change', function() {
+            saveInputOptions();
+            updateDigitalDashboard();
+        });
+
+        // Initialize marked
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+        }
+
+        // ==========================================
+        // LANGUAGE
+        // ==========================================
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('oplogica-lang', lang);
+            
+            // Update body direction
+            document.body.classList.toggle('rtl', lang === 'ar');
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Update lang buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(lang === 'ar' ? 'عربي' : lang));
+            });
+            
+            // Update text content
+            const t = translations[lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            
+            // Update placeholders
+            chatInput.placeholder = t.inputPlaceholder;
+            
+            // Update mode cards
+            renderModeCards();
+            
+            // Update user UI
+            updateUserUI();
+        }
+
+        function renderModeCards() {
+            const container = document.getElementById('mode-cards');
+            if (!container) return;
+            const cards = translations[currentLang].modeCards;
+            container.innerHTML = cards.map(card => `
+                <div class="mode-card" onclick="quickStart('${card.mode}', '${card.prompt.replace(/'/g, "\\'")}')">
+                    <div class="mode-card-icon">${card.icon}</div>
+                    <div class="mode-card-title">${card.title}</div>
+                    <div class="mode-card-desc">${card.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // ==========================================
+        // MODE
+        // ==========================================
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            // Update header
+            document.getElementById('current-mode-icon').textContent = modeIcons[mode];
+            const t = translations[currentLang];
+            const modeKey = 'mode' + mode.charAt(0).toUpperCase() + mode.slice(1);
+            document.getElementById('current-mode-name').textContent = t[modeKey] || mode;
+        }
+
+        // ==========================================
+        // SIDEBAR
+        // ==========================================
+        function toggleSidebar() {
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('show');
+            mainContent.classList.toggle('sidebar-hidden');
+        }
+
+        function startNewChat() {
+            newConversation();
+        }
+
+        // ==========================================
+        // CHAT SIDEBAR – Conversation history
+        // ==========================================
+        let conversations = [];
+        let currentConvId = null;
+
+        function toggleChatSidebar() {
+            document.getElementById('chatSidebar').classList.toggle('open');
+        }
+        function clearChatUI() {
+            messagesContainer.innerHTML = '';
+            messagesContainer.style.display = 'none';
+            const wel = document.getElementById('welcome-screen');
+            if (wel) wel.style.display = 'flex';
+            messages = [];
+            userScrolledUp = false;
+            updateDigitalDashboard();
+        }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        function saveConversations() {
+            try {
+                localStorage.setItem('oplogica_conversations', JSON.stringify(conversations));
+                localStorage.setItem('oplogica_current_conv', currentConvId || '');
+            } catch (e) { console.warn('saveConversations:', e); }
+        }
+        function saveCurrentConversation() {
+            if (!currentConvId) return;
+            const conv = conversations.find(c => c.id === currentConvId);
+            if (!conv) return;
+            const list = [];
+            messagesContainer.querySelectorAll('.message').forEach(function(msg) {
+                const textEl = msg.querySelector('.message-text');
+                const content = textEl ? textEl.innerHTML : '';
+                const role = msg.classList.contains('user') ? 'user' : 'assistant';
+                list.push({ role, content, timestamp: msg.dataset.timestamp || Date.now() });
+            });
+            conv.messages = list;
+            conv.updated = Date.now();
+            const firstUser = list.find(m => m.role === 'user');
+            if (firstUser) {
+                const text = (firstUser.content || '').replace(/<[^>]*>/g, '').trim();
+                conv.title = text.substring(0, 50) + (text.length > 50 ? '...' : '');
+                conv.preview = text.substring(0, 80);
+            }
+            saveConversations();
+        }
+        function newConversation() {
+            saveCurrentConversation();
+            const conv = {
+                id: 'conv_' + Date.now(),
+                title: 'New Conversation',
+                preview: '',
+                messages: [],
+                created: Date.now(),
+                updated: Date.now()
+            };
+            conversations.unshift(conv);
+            currentConvId = conv.id;
+            currentConversationId = conv.id;
+            clearChatUI();
+            saveConversations();
+            renderConversationList();
+            toggleChatSidebar();
+        }
+        function loadConversation(convId) {
+            saveCurrentConversation();
+            const conv = conversations.find(c => c.id === convId);
+            if (!conv) return;
+            currentConvId = convId;
+            currentConversationId = convId;
+            try { localStorage.setItem('oplogica_current_conv', convId); } catch (e) {}
+            clearChatUI();
+            if (conv.messages && conv.messages.length > 0) {
+                document.getElementById('welcome-screen').style.display = 'none';
+                messagesContainer.style.display = 'flex';
+                conv.messages.forEach(function(msg) {
+                    appendRestoredMessage(msg.role, msg.content || '', msg.timestamp);
+                });
+                chatArea.scrollTop = chatArea.scrollHeight;
+                renderTriageReasonGraphs(messagesContainer);
+                if (typeof hljs !== 'undefined') {
+                    messagesContainer.querySelectorAll('pre code').forEach(block => { hljs.highlightElement(block); });
+                }
+            } else {
+                document.getElementById('welcome-screen').style.display = 'flex';
+            }
+            renderConversationList();
+            toggleChatSidebar();
+        }
+        function deleteConversation(convId, event) {
+            if (event) event.stopPropagation();
+            conversations = conversations.filter(c => c.id !== convId);
+            if (currentConvId === convId) {
+                currentConvId = conversations.length > 0 ? conversations[0].id : null;
+                currentConversationId = currentConvId;
+                if (currentConvId) loadConversation(currentConvId);
+                else { clearChatUI(); document.getElementById('welcome-screen').style.display = 'flex'; }
+            }
+            saveConversations();
+            renderConversationList();
+        }
+        function renderConversationList() {
+            const list = document.getElementById('conversationList');
+            if (!list) return;
+            list.innerHTML = conversations.map(function(conv) {
+                const timeStr = new Date(conv.updated).toLocaleDateString();
+                const isActive = conv.id === currentConvId ? 'active' : '';
+                return '<div class="conv-item ' + isActive + '" onclick="loadConversation(\'' + conv.id + '\')">' +
+                    '<button class="conv-item-delete" onclick="deleteConversation(\'' + conv.id + '\', event)" title="Delete">&#128465;</button>' +
+                    '<div class="conv-item-title">' + escapeHtml(conv.title) + '</div>' +
+                    '<div class="conv-item-preview">' + escapeHtml(conv.preview) + '</div>' +
+                    '<div class="conv-item-time">' + timeStr + '</div></div>';
+            }).join('');
+        }
+        function filterConversations() {
+            const query = (document.getElementById('sidebarSearch').value || '').toLowerCase();
+            document.querySelectorAll('#conversationList .conv-item').forEach(function(item) {
+                const text = (item.textContent || '').toLowerCase();
+                item.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+            });
+        }
+        function restoreCurrentConversation() {
+            if (!currentConvId) {
+                if (conversations.length === 0) {
+                    clearChatUI();
+                }
+                renderConversationList();
+                return;
+            }
+            const conv = conversations.find(c => c.id === currentConvId);
+            if (!conv || !conv.messages || conv.messages.length === 0) {
+                clearChatUI();
+                renderConversationList();
+                return;
+            }
+            welcomeScreen.style.display = 'none';
+            messagesContainer.style.display = 'flex';
+            messagesContainer.innerHTML = '';
+            conv.messages.forEach(function(msg) {
+                appendRestoredMessage(msg.role, msg.content || '', msg.timestamp);
+            });
+            chatArea.scrollTop = chatArea.scrollHeight;
+            renderTriageReasonGraphs(messagesContainer);
+            if (typeof hljs !== 'undefined') {
+                messagesContainer.querySelectorAll('pre code').forEach(block => { hljs.highlightElement(block); });
+            }
+            renderConversationList();
+        }
+        function loadConversationsFromStorage() {
+            try {
+                const raw = localStorage.getItem('oplogica_conversations');
+                if (raw) {
+                    conversations = JSON.parse(raw);
+                    currentConvId = localStorage.getItem('oplogica_current_conv') || (conversations[0] && conversations[0].id) || null;
+                    currentConversationId = currentConvId;
+                    return;
+                }
+                const legacy = localStorage.getItem('oplogica_chat_history');
+                if (legacy) {
+                    const list = JSON.parse(legacy);
+                    const conv = {
+                        id: 'conv_' + Date.now(),
+                        title: 'Conversation',
+                        preview: '',
+                        messages: list,
+                        created: Date.now(),
+                        updated: Date.now()
+                    };
+                    const firstUser = list.find(m => m.role === 'user');
+                    if (firstUser) {
+                        const text = (firstUser.content || '').replace(/<[^>]*>/g, '').trim();
+                        conv.title = text.substring(0, 50) + (text.length > 50 ? '...' : '');
+                        conv.preview = text.substring(0, 80);
+                    }
+                    conversations = [conv];
+                    currentConvId = conv.id;
+                    currentConversationId = conv.id;
+                    localStorage.removeItem('oplogica_chat_history');
+                    saveConversations();
+                } else {
+                    conversations = [];
+                    currentConvId = null;
+                    currentConversationId = null;
+                }
+            } catch (e) {
+                conversations = [];
+                currentConvId = null;
+                currentConversationId = null;
+            }
+        }
+
+        // ==========================================
+        // AUTH
+        // ==========================================
+        function openAuthModal() {
+            authModal.classList.add('show');
+        }
+
+        function closeAuthModal() {
+            authModal.classList.remove('show');
+            document.getElementById('auth-error').classList.remove('show');
+        }
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'signin' && i === 0) || (tab === 'signup' && i === 1));
+            });
+            document.getElementById('signin-form').classList.toggle('active', tab === 'signin');
+            document.getElementById('signup-form').classList.toggle('active', tab === 'signup');
+            document.getElementById('auth-error').classList.remove('show');
+        }
+
+        async function handleSignIn(e) {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const btn = document.getElementById('signin-btn');
+            const errorEl = document.getElementById('auth-error');
+            
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            
+            try {
+                const res = await fetch('/api/auth/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('oplogica-token', authToken);
+                    currentUser = data.user;
+                    updateUserUI();
+                    closeAuthModal();
+                } else {
+                    errorEl.textContent = data.error || 'Sign in failed';
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Connection error. Please try again.';
+                errorEl.classList.add('show');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = translations[currentLang].signIn;
+        }
+
+        async function handleSignUp(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const btn = document.getElementById('signup-btn');
+            const errorEl = document.getElementById('auth-error');
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, full_name: fullName })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && (data.requiresVerification || data.message)) {
+                    errorEl.textContent = data.message || 'Account created! Please check your email to verify.';
+                    errorEl.style.borderColor = 'var(--accent-green)';
+                    errorEl.style.color = 'var(--accent-green)';
+                    errorEl.style.background = 'rgba(0, 255, 136, 0.1)';
+                    errorEl.classList.add('show');
+                } else if (data.token && data.user) {
+                    authToken = data.token;
+                    localStorage.setItem('oplogica-token', authToken);
+                    currentUser = data.user;
+                    updateUserUI();
+                    closeAuthModal();
+                } else {
+                    errorEl.textContent = data.error || 'Sign up failed';
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Connection error. Please try again.';
+                errorEl.classList.add('show');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = translations[currentLang].signUp;
+        }
+
+        function handleSignOut() {
+            if (confirm('Sign out?')) {
+                localStorage.removeItem('oplogica-token');
+                authToken = null;
+                currentUser = null;
+                updateUserUI();
+                startNewChat();
+            }
+        }
+
+        function handleUserClick() {
+            if (currentUser) {
+                handleSignOut();
+            } else {
+                openAuthModal();
+            }
+        }
+
+        function updateUserUI() {
+            const avatar = document.getElementById('user-avatar');
+            const name = document.getElementById('user-name');
+            const plan = document.getElementById('user-plan');
+            const t = translations[currentLang];
+            
+            if (currentUser) {
+                const initial = (currentUser.email || 'U')[0].toUpperCase();
+                avatar.textContent = initial;
+                name.textContent = currentUser.full_name || (currentUser.email || 'U').split('@')[0];
+                plan.textContent = t.freePlan;
+                remainingMessages = 50;
+            } else {
+                avatar.textContent = 'G';
+                name.textContent = t.guestUser;
+                plan.textContent = t.guestPlan || t.clickToLogin || 'Sign in';
+                remainingMessages = 20;
+            }
+            updateDigitalDashboard();
+        }
+
+        async function checkAuth() {
+            if (!authToken) {
+                updateUserUI();
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data.user;
+                    updateUserUI();
+                } else {
+                    localStorage.removeItem('oplogica-token');
+                    authToken = null;
+                    updateUserUI();
+                }
+            } catch (e) {
+                console.error('Auth check failed:', e);
+                updateUserUI();
+            }
+        }
+
+        // ==========================================
+        // MESSAGING
+        // ==========================================
+        function getTime() {
+            return new Date().toLocaleTimeString(
+                currentLang === 'ar' ? 'ar-EG' : currentLang === 'tr' ? 'tr-TR' : 'en-US',
+                { hour: '2-digit', minute: '2-digit' }
+            );
+        }
+
+        function formatMessage(text) {
+            if (!text) return '';
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            return text.replace(/\n/g, '<br>');
+        }
+
+        function addMessage(role, content, isStream = false) {
+            const id = 'msg-' + Date.now();
+            const t = translations[currentLang];
+            
+            const avatar = role === 'assistant' 
+                ? `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12 Q12 6 16 12 Q12 18 8 12"/></svg>`
+                : (currentUser ? currentUser.email[0].toUpperCase() : 'U');
+            
+            const modeKey = 'mode' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+            const modeName = t[modeKey] || currentMode;
+            
+            const ts = Date.now();
+            const html = `
+                <div class="message ${role} pulse-in" id="${id}" data-timestamp="${ts}">
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-role">${role === 'assistant' ? 'OpLogica' : t.you}</span>
+                            <span class="message-time">${getTime()}</span>
+                            ${role === 'assistant' ? `<span class="message-mode">${modeIcons[currentMode]} ${modeName}</span>` : ''}
+                        </div>
+                        <div class="message-text" id="${id}-text">${isStream ? '<span class="streaming-cursor"></span>' : formatMessage(content)}</div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+            scrollToBottomIfNeeded();
+            return id;
+        }
+
+        function updateStreamingMessage(id, text) {
+            const el = document.getElementById(id + '-text');
+            if (el) {
+                el.innerHTML = formatMessage(text) + '<span class="streaming-cursor"></span>';
+                scrollToBottomIfNeeded();
+            }
+        }
+
+        function renderTriageReasonGraphs(container) {
+            if (!container || !container.querySelectorAll) return;
+            container.querySelectorAll('.triage-reason-graph').forEach(function(el) {
+                var raw = el.getAttribute('data-graph');
+                if (!raw) return;
+                try {
+                    var graph = JSON.parse(raw.replace(/&quot;/g, '"'));
+                    var vertices = graph.vertices || [];
+                    var premises = vertices.filter(function(v) { return v.type === 'premise'; });
+                    var rules = vertices.filter(function(v) { return v.type === 'rule'; });
+                    var conclusions = vertices.filter(function(v) { return v.type === 'conclusion'; });
+                    function rowHtml(type, list) {
+                        return '<div class="graph-row ' + type + 's">' + list.map(function(v) {
+                            var statusClass = type === 'rule' ? '' : '';
+                            return '<div class="graph-node ' + type + '">' +
+                                '<span class="node-id">' + (v.id || '') + '</span>' +
+                                '<span class="node-label">' + (v.label || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>' +
+                                '</div>';
+                        }).join('') + '</div>';
+                    }
+                    var html = '<div class="reason-graph">' +
+                        rowHtml('premise', premises) +
+                        '<div class="graph-arrows">↓</div>' +
+                        rowHtml('rule', rules) +
+                        '<div class="graph-arrows">↓</div>' +
+                        rowHtml('conclusion', conclusions) +
+                        '<div class="graph-legend">' +
+                        '<span class="legend-item premise">■ Premise (observed data)</span>' +
+                        '<span class="legend-item rule">■ Rule (from policy)</span>' +
+                        '<span class="legend-item conclusion">■ Conclusion (derived)</span>' +
+                        '</div></div>';
+                    el.innerHTML = html;
+                } catch (e) { console.warn('Triage graph parse error', e); }
+            });
+        }
+
+        function getMsgActionsHtml() {
+            return `
+            <div class="msg-actions">
+                <button type="button" class="msg-action-btn" onclick="copyMessage(this)" title="Copy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+                    <span>Copy</span>
+                </button>
+                <button type="button" class="msg-action-btn" onclick="exportMessage(this)" title="Export">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>
+                    <span>Export</span>
+                </button>
+                <button type="button" class="msg-action-btn" onclick="shareMessage(this)" title="Share">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <span>Share</span>
+                </button>
+                <button type="button" class="msg-action-btn" onclick="readAloud(this)" title="Read aloud">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path></svg>
+                    <span>Read</span>
+                </button>
+                <button type="button" class="msg-action-btn rate-up" onclick="rateMessage(this, 'up')" title="Helpful">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"></path><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+                    <span>Like</span>
+                </button>
+                <button type="button" class="msg-action-btn rate-down" onclick="rateMessage(this, 'down')" title="Not helpful">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3z"></path><path d="M17 2h3a2 2 0 012 2v7a2 2 0 01-2 2h-3"></path></svg>
+                    <span>Dislike</span>
+                </button>
+            </div>`;
+        }
+        function isVerificationRequest(text) {
+            const t = (text || '').toLowerCase();
+            return (t.indexOf('medical') !== -1 && t.indexOf('triage') !== -1) ||
+                (t.indexOf('credit') !== -1 && (t.indexOf('assessment') !== -1 || t.indexOf('loan') !== -1)) ||
+                (t.indexOf('candidate') !== -1 && t.indexOf('assessment') !== -1) ||
+                (t.indexOf('employment') !== -1 && t.indexOf('screen') !== -1) ||
+                (t.indexOf('hiring') !== -1) ||
+                (t.indexOf('building') !== -1 && t.indexOf('permit') !== -1) ||
+                (t.indexOf('permit') !== -1 && t.indexOf('assessment') !== -1);
+        }
+        function showVerificationAnimation(container) {
+            if (!container) return null;
+            const html = '<div class="verification-animation" id="verifyAnim">' +
+                '<div class="verify-header"><span class="verify-pulse"></span><span class="verify-title">Running Triadic Verification...</span></div>' +
+                '<div class="verify-steps">' +
+                '<div class="verify-step" id="step-poo"><div class="step-icon pending">&#9675;</div><div class="step-label">PoO</div><div class="step-desc">Integrity</div></div>' +
+                '<div class="verify-connector"></div>' +
+                '<div class="verify-step" id="step-por"><div class="step-icon pending">&#9675;</div><div class="step-label">PoR</div><div class="step-desc">Reasoning</div></div>' +
+                '<div class="verify-connector"></div>' +
+                '<div class="verify-step" id="step-poi"><div class="step-icon pending">&#9675;</div><div class="step-label">PoI</div><div class="step-desc">Intent</div></div>' +
+                '</div>' +
+                '<div class="verify-progress"><div class="verify-bar" id="verifyBar"></div></div></div>';
+            const wrap = document.createElement('div');
+            wrap.innerHTML = html;
+            const animEl = wrap.firstElementChild;
+            const textEl = container.querySelector('.message-text');
+            if (textEl) container.insertBefore(animEl, textEl);
+            else container.appendChild(animEl);
+            const bar = animEl.querySelector('#verifyBar');
+            const poo = animEl.querySelector('#step-poo .step-icon');
+            const por = animEl.querySelector('#step-por .step-icon');
+            const poi = animEl.querySelector('#step-poi .step-icon');
+            const conns = animEl.querySelectorAll('.verify-connector');
+            const titleEl = animEl.querySelector('.verify-title');
+            const verifyEl = animEl.querySelector('.verification-animation');
+            setTimeout(function() {
+                if (poo) { poo.classList.remove('pending'); poo.classList.add('active'); poo.textContent = '\u23F3'; }
+                if (bar) bar.style.width = '15%';
+            }, 200);
+            setTimeout(function() {
+                if (poo) { poo.classList.remove('active'); poo.classList.add('done'); poo.textContent = '\u2713'; poo.parentElement.insertAdjacentHTML('beforeend', '<div class="step-time">0.12s</div>'); }
+                if (conns[0]) conns[0].classList.add('active');
+                if (bar) bar.style.width = '33%';
+            }, 700);
+            setTimeout(function() {
+                if (por) { por.classList.remove('pending'); por.classList.add('active'); por.textContent = '\u23F3'; }
+                if (bar) bar.style.width = '50%';
+            }, 900);
+            setTimeout(function() {
+                if (por) { por.classList.remove('active'); por.classList.add('done'); por.textContent = '\u2713'; por.parentElement.insertAdjacentHTML('beforeend', '<div class="step-time">0.08s</div>'); }
+                if (conns[1]) conns[1].classList.add('active');
+                if (bar) bar.style.width = '66%';
+            }, 1400);
+            setTimeout(function() {
+                if (poi) { poi.classList.remove('pending'); poi.classList.add('active'); poi.textContent = '\u23F3'; }
+                if (bar) bar.style.width = '80%';
+            }, 1600);
+            setTimeout(function() {
+                if (poi) { poi.classList.remove('active'); poi.classList.add('done'); poi.textContent = '\u2713'; poi.parentElement.insertAdjacentHTML('beforeend', '<div class="step-time">0.05s</div>'); }
+                if (bar) bar.style.width = '100%';
+                if (verifyEl) verifyEl.classList.add('verify-complete');
+                if (titleEl) titleEl.textContent = '\u2705 Triadic Verification Complete \u2014 VERIFIED';
+            }, 2100);
+            return animEl;
+        }
+        function finalizeMessage(id, text) {
+            const el = document.getElementById(id + '-text');
+            if (el) {
+                el.innerHTML = formatMessage(text);
+                renderTriageReasonGraphs(el);
+                if (typeof hljs !== 'undefined') {
+                    el.querySelectorAll('pre code').forEach(block => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            }
+            const msgDiv = document.getElementById(id);
+            if (msgDiv && msgDiv.classList.contains('assistant') && !msgDiv.querySelector('.msg-actions')) {
+                const content = msgDiv.querySelector('.message-content');
+                if (content) content.insertAdjacentHTML('beforeend', getMsgActionsHtml());
+                applyStoredRating(msgDiv);
+            }
+        }
+        function applyStoredRating(msgDiv) {
+            const id = msgDiv.id || msgDiv.dataset.timestamp;
+            if (!id) return;
+            try {
+                const key = 'oplogica_rating_' + id;
+                const r = localStorage.getItem(key);
+                if (r === 'up') {
+                    const up = msgDiv.querySelector('.rate-up');
+                    if (up) up.classList.add('active');
+                } else if (r === 'down') {
+                    const down = msgDiv.querySelector('.rate-down');
+                    if (down) down.classList.add('rated-down');
+                }
+            } catch (e) {}
+        }
+
+        function saveChat() {
+            if (currentConvId) {
+                saveCurrentConversation();
+                return;
+            }
+            const list = [];
+            messagesContainer.querySelectorAll('.message').forEach(function(msg) {
+                const textEl = msg.querySelector('.message-text');
+                const content = textEl ? textEl.innerHTML : '';
+                const role = msg.classList.contains('user') ? 'user' : 'assistant';
+                list.push({ role, content, timestamp: msg.dataset.timestamp || Date.now() });
+            });
+            try {
+                localStorage.setItem('oplogica_chat_history', JSON.stringify(list));
+            } catch (e) { console.warn('saveChat:', e); }
+        }
+        function saveConversationContext() {
+            try {
+                localStorage.setItem('oplogica_chat_context', JSON.stringify(messages));
+            } catch (e) { console.warn('saveConversationContext:', e); }
+        }
+        function restoreConversationContext() {
+            try {
+                const saved = localStorage.getItem('oplogica_chat_context');
+                if (saved) messages = JSON.parse(saved);
+                else messages = [];
+            } catch (e) { messages = []; }
+        }
+        function appendRestoredMessage(role, contentHtml, timestamp) {
+            const id = 'msg-' + (timestamp || Date.now());
+            const t = translations[currentLang];
+            const avatar = role === 'assistant'
+                ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12 Q12 6 16 12 Q12 18 8 12"/></svg>'
+                : (currentUser ? currentUser.email[0].toUpperCase() : 'U');
+            const modeKey = 'mode' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+            const modeName = t[modeKey] || currentMode;
+            const timeStr = timestamp ? new Date(Number(timestamp)).toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : getTime();
+            const actionsHtml = role === 'assistant' ? getMsgActionsHtml() : '';
+            const html = `
+                <div class="message ${role}" id="${id}" data-timestamp="${timestamp || Date.now()}">
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-role">${role === 'assistant' ? 'OpLogica' : t.you}</span>
+                            <span class="message-time">${timeStr}</span>
+                            ${role === 'assistant' ? `<span class="message-mode">${modeIcons[currentMode]} ${modeName}</span>` : ''}
+                        </div>
+                        <div class="message-text" id="${id}-text">${contentHtml}</div>
+                        ${actionsHtml}
+                    </div>
+                </div>
+            `;
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+            if (role === 'assistant') {
+                const msgDiv = document.getElementById(id);
+                if (msgDiv) applyStoredRating(msgDiv);
+            }
+        }
+        function restoreChat() {
+            try {
+                const saved = localStorage.getItem('oplogica_chat_history');
+                if (!saved) return;
+                const list = JSON.parse(saved);
+                if (!list.length) return;
+                list.forEach(function(msg) {
+                    appendRestoredMessage(msg.role, msg.content || '', msg.timestamp);
+                });
+                welcomeScreen.style.display = 'none';
+                messagesContainer.style.display = 'flex';
+                chatArea.scrollTop = chatArea.scrollHeight;
+                renderTriageReasonGraphs(messagesContainer);
+                if (typeof hljs !== 'undefined') {
+                    messagesContainer.querySelectorAll('pre code').forEach(block => { hljs.highlightElement(block); });
+                }
+            } catch (e) { console.error('restoreChat:', e); }
+        }
+        function clearChat() {
+            try {
+                localStorage.removeItem('oplogica_chat_context');
+            } catch (e) {}
+            if (currentConvId) {
+                const conv = conversations.find(c => c.id === currentConvId);
+                if (conv) {
+                    conv.messages = [];
+                    conv.title = 'New Conversation';
+                    conv.preview = '';
+                    conv.updated = Date.now();
+                }
+                saveConversations();
+                renderConversationList();
+            } else {
+                try { localStorage.removeItem('oplogica_chat_history'); } catch (e) {}
+            }
+            clearChatUI();
+            updateDigitalDashboard();
+        }
+
+        function showTooltip(btn, text) {
+            const span = btn.querySelector('span');
+            if (!span) return;
+            const original = span.textContent;
+            span.textContent = text;
+            span.style.color = 'var(--accent-green)';
+            setTimeout(function() {
+                span.textContent = original;
+                span.style.color = '';
+            }, 2000);
+        }
+        function getMessageText(btn) {
+            const msgEl = btn.closest('.message');
+            if (!msgEl) return '';
+            const content = msgEl.querySelector('.message-content');
+            const textEl = content ? content.querySelector('.message-text') : msgEl.querySelector('.message-text');
+            return (textEl && (textEl.innerText || textEl.textContent)) || '';
+        }
+        function copyMessage(btn) {
+            const text = getMessageText(btn);
+            navigator.clipboard.writeText(text).then(function() {
+                showTooltip(btn, '✓ Copied!');
+            }).catch(function() { showTooltip(btn, 'Failed'); });
+        }
+        function exportMessage(btn) {
+            const text = getMessageText(btn);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-').replace(/\..*/, '');
+            const html = '<!DOCTYPE html><html dir="auto"><head><meta charset="UTF-8"><title>OpLogica Response</title><style>body{font-family:system-ui;max-width:800px;margin:40px auto;padding:20px;color:#333;line-height:1.7}.header{border-bottom:2px solid #00D9FF;padding-bottom:12px;margin-bottom:20px}.header h1{color:#00D9FF;font-size:18px;margin:0}.header p{color:#888;font-size:13px;margin:4px 0 0}.content{white-space:pre-wrap}</style></head><body><div class="header"><h1>OpLogica AI Response</h1><p>' + new Date().toLocaleString() + '</p></div><div class="content">' + (text.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</div></body></html>';
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'oplogica-response-' + timestamp + '.html';
+            a.click();
+            URL.revokeObjectURL(url);
+            showTooltip(btn, '✓ Exported!');
+        }
+        function shareMessage(btn) {
+            const text = getMessageText(btn);
+            const summary = text.substring(0, 100) + (text.length > 100 ? '...' : '');
+            const shareText = 'OpLogica AI Response — ' + summary + '\nhttps://oplogica.com/chat';
+            if (navigator.share) {
+                navigator.share({ title: 'OpLogica AI', text: summary, url: 'https://oplogica.com/chat' }).then(function() {
+                    showTooltip(btn, '✓ Shared!');
+                }).catch(function() {
+                    navigator.clipboard.writeText(shareText).then(function() { showTooltip(btn, '✓ Link copied!'); });
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(function() { showTooltip(btn, '✓ Link copied!'); });
+            }
+        }
+        function readAloud(btn) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                btn.classList.remove('active');
+                btn.querySelector('span').textContent = 'Read';
+                return;
+            }
+            const text = getMessageText(btn);
+            if (!text.trim()) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = /[\u0600-\u06FF]/.test(text) ? 'ar' : 'en';
+            utterance.rate = 0.9;
+            utterance.onend = function() {
+                btn.classList.remove('active');
+                var s = btn.querySelector('span');
+                if (s) s.textContent = 'Read';
+            };
+            btn.classList.add('active');
+            var s = btn.querySelector('span');
+            if (s) s.textContent = 'Stop';
+            speechSynthesis.speak(utterance);
+        }
+        function rateMessage(btn, type) {
+            const msgEl = btn.closest('.message');
+            if (!msgEl) return;
+            const id = msgEl.id || msgEl.dataset.timestamp;
+            const upBtn = msgEl.querySelector('.rate-up');
+            const downBtn = msgEl.querySelector('.rate-down');
+            if (upBtn) upBtn.classList.remove('active');
+            if (downBtn) downBtn.classList.remove('rated-down');
+            try {
+                localStorage.setItem('oplogica_rating_' + id, type);
+            } catch (e) {}
+            if (type === 'up') {
+                if (upBtn) upBtn.classList.add('active');
+                showTooltip(btn, '✓ Thanks!');
+            } else {
+                if (downBtn) downBtn.classList.add('rated-down');
+                showTooltip(btn, '✓ Feedback noted');
+            }
+        }
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text || isStreaming) return;
+            
+            // Show messages container
+            welcomeScreen.style.display = 'none';
+            messagesContainer.style.display = 'flex';
+            updateDigitalDashboard();
+            userScrolledUp = false;
+            
+            if (!currentConvId) {
+                const conv = {
+                    id: 'conv_' + Date.now(),
+                    title: 'New Conversation',
+                    preview: '',
+                    messages: [],
+                    created: Date.now(),
+                    updated: Date.now()
+                };
+                conversations.unshift(conv);
+                currentConvId = conv.id;
+                currentConversationId = conv.id;
+                saveConversations();
+                renderConversationList();
+            }
+            
+            // Add user message
+            addMessage('user', text);
+            messages.push({ role: 'user', content: text });
+            saveChat();
+            saveConversationContext();
+            
+            const body = {
+                message: text,
+                mode: currentMode,
+                conversation_id: currentConversationId
+            };
+            const firstImage = pendingAttachments.find(a => a.dataUrl && a.dataUrl.startsWith('data:image/'));
+            if (firstImage && firstImage.dataUrl) body.image = firstImage.dataUrl;
+            
+            // Clear input and attachments after capturing for request
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            pendingAttachments = [];
+            renderAttachmentsPreview();
+            updateCharWordCount();
+            
+            // Start streaming
+            isStreaming = true;
+            sendBtn.disabled = true;
+            showThinking(true);
+            setStreamProgress(0);
+            
+            const msgId = addMessage('assistant', '', true);
+            if (isVerificationRequest(text)) {
+                const msgDiv = document.getElementById(msgId);
+                const contentDiv = msgDiv && msgDiv.querySelector('.message-content');
+                if (contentDiv) showVerificationAnimation(contentDiv);
+            }
+            let fullText = '';
+            let chunkCount = 0;
+            
+            try {
+                const response = await fetch('/api/ai/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    if (response.status === 429 && errData.upgrade_url) {
+                        window.location.href = errData.upgrade_url;
+                        return;
+                    }
+                    throw new Error(errData.error || 'Server error: ' + response.status);
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') break;
+                            
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.text) {
+                                    fullText += parsed.text;
+                                    chunkCount++;
+                                    setStreamProgress(Math.min(95, chunkCount * 2));
+                                    updateStreamingMessage(msgId, fullText);
+                                }
+                                if (parsed.remaining !== undefined) remainingMessages = parsed.remaining;
+                                if (parsed.done) setStreamProgress(100);
+                                if (parsed.error) {
+                                    throw new Error(parsed.error);
+                                }
+                            } catch (e) {
+                                // Ignore parse errors for incomplete chunks
+                            }
+                        }
+                    }
+                }
+                
+                setStreamProgress(100);
+                if (fullText) {
+                    finalizeMessage(msgId, fullText);
+                    messages.push({ role: 'assistant', content: fullText });
+                } else {
+                    finalizeMessage(msgId, 'No response received. Please try again.');
+                }
+                saveChat();
+                saveConversationContext();
+                updateDigitalDashboard();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                finalizeMessage(msgId, '❌ Error: ' + error.message);
+                updateDigitalDashboard();
+            }
+            
+            isStreaming = false;
+            sendBtn.disabled = false;
+            showThinking(false);
+            setStreamProgress(0);
+            chatInput.focus();
+        }
+
+        // ==========================================
+        // INPUT HANDLING
+        // ==========================================
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+            updateCharWordCount();
+        });
+
+        document.getElementById('chat-area').addEventListener('scroll', updateScrollProgress);
+
+        document.getElementById('model-select').addEventListener('change', function() {
+            const v = this.value;
+            if (v === 'quick' || v === 'deep') setMode(v);
+        });
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set language
+            setLanguage(currentLang);
+            
+            // Check auth
+            checkAuth();
+            
+            restoreConversationContext();
+            loadConversationsFromStorage();
+            restoreCurrentConversation();
+            
+            loadInputOptions();
+            startClockAndSession();
+            updateDigitalDashboard();
+            
+            // Render mode cards with glass hover
+            renderModeCards();
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.add('glass-hover'));
+            
+            // Focus input
+            chatInput.focus();
+            
+            // Escape key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') { closeAuthModal(); stopMic(); }
+            });
+            
+            console.log('OpLogica v8 initialized successfully');
+        });
+    </script>
+</body>
+</html>

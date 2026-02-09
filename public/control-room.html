@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpLogica Decision Control Room</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root, [data-theme="montablack"] {
+            --bg-deep: #030306;
+            --bg-primary: #06080c;
+            --bg-panel: #0a0d12;
+            --bg-elevated: #0e1118;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(0, 217, 255, 0.25);
+            --text-primary: #e8ecf1;
+            --text-secondary: #8b92a0;
+            --text-muted: #5a6170;
+            --accent-primary: #00D9FF;
+            --accent-secondary: #00FF88;
+            --glow: rgba(0, 217, 255, 0.15);
+            --glow-strong: rgba(0, 255, 136, 0.2);
+            --glass: rgba(10, 13, 18, 0.82);
+            --glass-border: rgba(255,255,255,0.04);
+        }
+        [data-theme="ivory"] {
+            --bg-deep: #f8f9fa;
+            --bg-primary: #ffffff;
+            --bg-panel: #f0f2f5;
+            --bg-elevated: #ffffff;
+            --border: rgba(0,0,0,0.08);
+            --border-accent: rgba(0,0,0,0.18);
+            --text-primary: #0d1117;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --accent-primary: #0f766e;
+            --accent-secondary: #047857;
+            --glow: rgba(15, 118, 110, 0.08);
+            --glow-strong: rgba(4, 120, 87, 0.12);
+            --glass: rgba(255,255,255,0.88);
+            --glass-border: rgba(0,0,0,0.06);
+        }
+        [data-theme="verdict"] {
+            --bg-deep: #05100a;
+            --bg-primary: #081810;
+            --bg-panel: #0c1f14;
+            --bg-elevated: #0f2618;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(34, 197, 94, 0.35);
+            --text-primary: #e2efe6;
+            --text-secondary: #86a38c;
+            --text-muted: #5a7a60;
+            --accent-primary: #22c55e;
+            --accent-secondary: #16a34a;
+            --glow: rgba(34, 197, 94, 0.12);
+            --glow-strong: rgba(34, 197, 94, 0.22);
+            --glass: rgba(12, 31, 20, 0.85);
+            --glass-border: rgba(255,255,255,0.04);
+        }
+        [data-theme="cortex"] {
+            --bg-deep: #0f0c08;
+            --bg-primary: #16120d;
+            --bg-panel: #1c1710;
+            --bg-elevated: #221c14;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(180, 140, 90, 0.4);
+            --text-primary: #e8e2d9;
+            --text-secondary: #9c9182;
+            --text-muted: #6b6154;
+            --accent-primary: #c4a574;
+            --accent-secondary: #a68b5b;
+            --glow: rgba(196, 165, 116, 0.1);
+            --glow-strong: rgba(166, 139, 91, 0.18);
+            --glass: rgba(28, 23, 16, 0.88);
+            --glass-border: rgba(255,255,255,0.04);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.5;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* ─── Glass panel with depth ─── */
+        .panel {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+        .panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* ─── Header ─── */
+        .cr-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+        }
+        .cr-logo { display: flex; align-items: center; gap: 10px; }
+        .cr-logo svg { width: 28px; height: 28px; }
+        .cr-logo span { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em; color: var(--accent-primary); }
+        .cr-header-right { display: flex; align-items: center; gap: 20px; }
+        .theme-switcher { display: flex; gap: 4px; }
+        .theme-btn {
+            padding: 6px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .theme-btn:hover { border-color: var(--border-accent); color: var(--text-primary); }
+        .theme-btn.active { border-color: var(--accent-primary); color: var(--accent-primary); background: var(--glow); }
+        .sovereignty-badge {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+        }
+
+        /* ─── Main grid ─── */
+        .cr-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 12px;
+            padding: 16px;
+            max-width: 1920px;
+            margin: 0 auto;
+            min-height: calc(100vh - 52px);
+        }
+
+        .innovation {
+            padding: 14px 16px;
+            min-height: 72px;
+        }
+        .innovation-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+        .innovation-value, .innovation-state {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ─── Named innovations (25) ─── */
+        #innovation-poo-ledger .innovation-value { color: var(--accent-secondary); }
+        #innovation-por-trace .innovation-value { color: var(--accent-secondary); }
+        #innovation-poi-seal .innovation-value { color: var(--accent-secondary); }
+
+        .reason-graph-container {
+            grid-column: 1 / -1;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 800px;
+        }
+        .reason-graph-viz {
+            width: 320px;
+            height: 160px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(8deg) rotateY(-5deg);
+        }
+        .reason-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            box-shadow: 0 0 20px var(--glow);
+            animation: nodePulse 2s ease-in-out infinite;
+        }
+        .reason-node:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+        .reason-node:nth-child(2) { top: 50%; left: 35%; animation-delay: 0.2s; }
+        .reason-node:nth-child(3) { top: 75%; left: 25%; animation-delay: 0.4s; }
+        .reason-node:nth-child(4) { top: 30%; left: 55%; animation-delay: 0.1s; }
+        .reason-node:nth-child(5) { top: 60%; left: 65%; animation-delay: 0.3s; }
+        .reason-node:nth-child(6) { top: 15%; left: 80%; animation-delay: 0.5s; }
+        .reason-node:nth-child(7) { top: 85%; left: 75%; animation-delay: 0.15s; }
+        .reason-edge {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-primary), transparent);
+            transform-origin: left center;
+            opacity: 0.4;
+        }
+        @keyframes nodePulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 28px var(--glow-strong); } }
+
+        .compliance-radar-wrap {
+            grid-column: span 1;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .compliance-radar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, var(--glass) 70%);
+        }
+        .compliance-radar::before, .compliance-radar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            opacity: 0.5;
+        }
+        .compliance-radar::before { transform: scale(0.66); }
+        .compliance-radar::after { transform: scale(0.33); }
+        .radar-sweep {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border-right: 2px solid var(--accent-primary);
+            animation: radarSweep 3s linear infinite;
+        }
+        @keyframes radarSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .merkle-spine {
+            grid-column: span 1;
+            padding: 16px;
+        }
+        .merkle-level {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 8px;
+        }
+        .merkle-node {
+            width: 6px;
+            height: 20px;
+            background: var(--border-accent);
+            border-radius: 1px;
+            transition: background 0.3s;
+        }
+        .merkle-node.verified { background: var(--accent-secondary); box-shadow: 0 0 12px var(--glow-strong); }
+
+        .intent-lock-wrap {
+            grid-column: span 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+        .intent-lock {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .intent-lock.locked { border-color: var(--accent-primary); box-shadow: 0 0 24px var(--glow); }
+        .intent-lock.unlocked { border-color: var(--accent-secondary); }
+        .intent-lock svg { width: 28px; height: 28px; stroke: var(--text-muted); }
+        .intent-lock.locked svg { stroke: var(--accent-primary); }
+
+        .proof-vault {
+            grid-column: 1 / -1;
+            min-height: 140px;
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .proof-card {
+            width: 100px;
+            height: 100px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .proof-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .proof-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--glow); }
+        .proof-card .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+        .proof-card .hash { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--accent-primary); margin-top: 4px; }
+
+        .verdict-panel {
+            grid-column: 1 / -1;
+            padding: 20px 24px;
+            border-left: 4px solid var(--accent-primary);
+        }
+        .verdict-panel .verdict-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 8px; }
+        .verdict-panel .verdict-text { font-size: 1rem; color: var(--text-primary); }
+
+        .decision-replay-bar {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+        }
+        .replay-btn {
+            padding: 8px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .replay-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        .input-zone {
+            grid-column: 1 / -1;
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .input-zone .input-row {
+            display: flex;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .input-zone textarea {
+            flex: 1;
+            min-height: 52px;
+            padding: 14px 18px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 2px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-zone textarea:focus { border-color: var(--accent-primary); }
+        .input-zone textarea::placeholder { color: var(--text-muted); }
+        .input-zone .submit-btn {
+            padding: 14px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: var(--accent-primary);
+            color: var(--bg-deep);
+            border: none;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: opacity 0.2s, box-shadow 0.2s;
+        }
+        .input-zone .submit-btn:hover { opacity: 0.95; box-shadow: 0 4px 20px var(--glow); }
+        .input-zone .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .immersive-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 8px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 2px;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+        .immersive-toggle:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        body.immersive .cr-header { opacity: 0.5; }
+        body.immersive .innovation { opacity: 0.6; }
+        body.immersive .verdict-panel { opacity: 1; transform: scale(1.02); }
+        body.immersive .reason-graph-container { opacity: 1; }
+        body.immersive .input-zone { opacity: 1; }
+
+        /* Micro-animations: proof created */
+        .panel.proof-created { animation: proofFlash 0.6s ease; }
+        @keyframes proofFlash { 0% { box-shadow: 0 0 0 0 var(--glow-strong); } 50% { box-shadow: 0 0 40px 4px var(--glow-strong); } 100% { box-shadow: 0 4px 24px rgba(0,0,0,0.2); } }
+        .panel.verification-pass { animation: verifyPass 0.5s ease; }
+        @keyframes verifyPass { 0% { border-color: var(--border); } 50% { border-color: var(--accent-secondary); } 100% { border-color: var(--glass-border); } }
+        .logic-pulse-panel { position: relative; }
+        .pulse-dot {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            animation: logicPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes logicPulse { 0%, 100% { opacity: 0.6; box-shadow: 0 0 0 0 var(--glow); } 50% { opacity: 1; box-shadow: 0 0 12px 2px var(--glow); } }
+
+        @media (max-width: 1200px) {
+            .cr-main { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .cr-main { grid-template-columns: 1fr; }
+            .reason-graph-container { height: 180px; }
+        }
+    </style>
+</head>
+<body data-theme="montablack">
+    <header class="cr-header panel">
+        <div class="cr-logo">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="20" cy="20" r="18"/>
+                <path d="M12 20 Q20 8 28 20 Q20 32 12 20"/>
+            </svg>
+            <span>OpLogica</span>
+        </div>
+        <div class="cr-header-right">
+            <div class="theme-switcher">
+                <button type="button" class="theme-btn active" data-theme="montablack">MontaBlack</button>
+                <button type="button" class="theme-btn" data-theme="ivory">Ivory Protocol</button>
+                <button type="button" class="theme-btn" data-theme="verdict">Verdict Green</button>
+                <button type="button" class="theme-btn" data-theme="cortex">Cortex Brown</button>
+            </div>
+            <div class="sovereignty-badge mono">Decision Authority</div>
+        </div>
+    </header>
+
+    <main class="cr-main">
+        <!-- 25 Named Innovations (branded components) -->
+        <div class="panel innovation" id="innovation-poo-ledger">
+            <div class="innovation-name">1. Proof of Origin (PoO) Ledger</div>
+            <div class="innovation-value mono">SHA3-256 chain · integrity verified</div>
+        </div>
+        <div class="panel innovation" id="innovation-por-trace">
+            <div class="innovation-name">2. Proof of Reason (PoR) Trace</div>
+            <div class="innovation-value mono">Premises → rules → conclusion</div>
+        </div>
+        <div class="panel innovation" id="innovation-poi-seal">
+            <div class="innovation-name">3. Proof of Intent (PoI) Seal</div>
+            <div class="innovation-value mono">Constraints signed a priori</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">4. Reason Graph Constructor</div>
+            <div class="innovation-state">Live graph · data, rules, conclusions</div>
+        </div>
+        <div class="panel innovation compliance-radar-wrap">
+            <div class="innovation-name" style="position:absolute;top:14px;left:16px;">5. Compliance Radar</div>
+            <div class="compliance-radar">
+                <div class="radar-sweep"></div>
+            </div>
+        </div>
+        <div class="panel innovation merkle-spine">
+            <div class="innovation-name">6. Merkle Spine Visualizer</div>
+            <div class="merkle-level"><span class="merkle-node verified"></span></div>
+            <div class="merkle-level"><span class="merkle-node verified"></span><span class="merkle-node verified"></span></div>
+            <div class="merkle-level"><span class="merkle-node"></span><span class="merkle-node"></span><span class="merkle-node"></span><span class="merkle-node"></span></div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">7. Decision Replay Cinematic</div>
+            <div class="innovation-state">Sequence available on verdict</div>
+        </div>
+        <div class="panel innovation intent-lock-wrap">
+            <div style="position:absolute;top:14px;left:16px;" class="innovation-name">8. Intent Lock</div>
+            <div class="intent-lock locked" id="intent-lock">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">9. Proof Bundle Vault</div>
+            <div class="innovation-state">Immutable proof set</div>
+        </div>
+        <div class="panel innovation verdict-panel">
+            <div class="verdict-title">10. Verdict Panel</div>
+            <div class="verdict-text">No decision submitted. Submit a decision request to receive a verified verdict.</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">11. Audit Trail Strip</div>
+            <div class="innovation-value mono">Event log · timestamped</div>
+        </div>
+        <div class="panel innovation logic-pulse-panel" id="logic-pulse">
+            <div class="innovation-name">12. Logic Pulse</div>
+            <div class="innovation-state">Inference heartbeat</div>
+            <div class="pulse-dot" aria-hidden="true"></div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">13. Sovereignty Badge</div>
+            <div class="innovation-state">Authority scope active</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">14. Inference Chain Display</div>
+            <div class="innovation-value mono">Step 1 → 2 → 3 → verdict</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">15. Evidence Weight Meter</div>
+            <div class="innovation-state">Per-source contribution</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">16. Confidence Calibration</div>
+            <div class="innovation-state">Calibrated probability</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">17. Jurisdiction Tag</div>
+            <div class="innovation-value mono">Scope: decision intelligence</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">18. Timestamp Authority</div>
+            <div class="innovation-value mono" id="ts-authority">—</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">19. Reasoning Depth Gauge</div>
+            <div class="innovation-state">Depth level</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">20. Contradiction Detector</div>
+            <div class="innovation-state">No contradictions</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">21. Source Provenance Map</div>
+            <div class="innovation-value mono">Origin → transform → use</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">22. Decision State Machine</div>
+            <div class="innovation-state">Idle · awaiting input</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">23. Immersive One-Decision Mode</div>
+            <div class="innovation-state">Toggle bottom-right</div>
+        </div>
+        <div class="panel innovation" id="verification-gate">
+            <div class="innovation-name">24. Verification Gate</div>
+            <div class="innovation-value mono">PoO · PoR · PoI pass</div>
+        </div>
+        <div class="panel innovation">
+            <div class="innovation-name">25. Institutional Seal</div>
+            <div class="innovation-state">OpLogica verified</div>
+        </div>
+
+        <!-- Reason Graph (3D feel) -->
+        <div class="panel reason-graph-container">
+            <div class="innovation-name" style="position:absolute;top:14px;left:16px;">Reason Graph · Live Construction</div>
+            <div class="reason-graph-viz" id="reason-graph-viz">
+                <span class="reason-node"></span><span class="reason-node"></span><span class="reason-node"></span>
+                <span class="reason-node"></span><span class="reason-node"></span><span class="reason-node"></span><span class="reason-node"></span>
+            </div>
+        </div>
+
+        <!-- Proof Bundle Vault (holographic cards) -->
+        <div class="panel proof-vault">
+            <div class="innovation-name" style="position:absolute;top:14px;left:16px;">Proof Bundle Vault</div>
+            <div class="proof-card"><span class="label">PoO</span><span class="hash">0x…a3f2</span></div>
+            <div class="proof-card"><span class="label">PoR</span><span class="hash">0x…b1c9</span></div>
+            <div class="proof-card"><span class="label">PoI</span><span class="hash">0x…d4e7</span></div>
+        </div>
+
+        <!-- Decision Replay bar -->
+        <div class="panel decision-replay-bar">
+            <button type="button" class="replay-btn mono" id="replay-btn">Decision Replay</button>
+            <span class="mono" style="font-size:0.7rem;color:var(--text-muted);">Cinematic sequence after verdict</span>
+        </div>
+
+        <!-- Input zone -->
+        <div class="panel input-zone">
+            <div class="input-row">
+                <textarea id="decision-input" placeholder="State the decision request. This system judges, verifies, and proves." rows="2"></textarea>
+                <button type="button" class="submit-btn" id="submit-decision">Submit</button>
+            </div>
+        </div>
+    </main>
+
+    <button type="button" class="immersive-toggle panel" id="immersive-btn">One-Decision Mode</button>
+
+    <script>
+        (function() {
+            const body = document.body;
+            const themeBtns = document.querySelectorAll('.theme-btn');
+            const tsAuthority = document.getElementById('ts-authority');
+            const intentLock = document.getElementById('intent-lock');
+            const submitBtn = document.getElementById('submit-decision');
+            const decisionInput = document.getElementById('decision-input');
+            const replayBtn = document.getElementById('replay-btn');
+            const immersiveBtn = document.getElementById('immersive-btn');
+
+            function setTheme(theme) {
+                body.setAttribute('data-theme', theme);
+                localStorage.setItem('oplogica-cr-theme', theme);
+                themeBtns.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+            }
+
+            themeBtns.forEach(btn => btn.addEventListener('click', () => setTheme(btn.dataset.theme)));
+            const saved = localStorage.getItem('oplogica-cr-theme');
+            if (saved) setTheme(saved);
+
+            function updateTimestamp() {
+                if (tsAuthority) tsAuthority.textContent = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' Z';
+            }
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+
+            function triggerProofAnimation() {
+                document.querySelectorAll('.panel.innovation').forEach((p, i) => {
+                    setTimeout(() => p.classList.add('proof-created'), i * 40);
+                    setTimeout(() => p.classList.remove('proof-created'), 600 + i * 40);
+                });
+            }
+
+            submitBtn.addEventListener('click', function() {
+                const text = (decisionInput && decisionInput.value) ? decisionInput.value.trim() : '';
+                if (!text) return;
+                submitBtn.disabled = true;
+                if (intentLock) intentLock.classList.remove('locked'), intentLock.classList.add('unlocked');
+                triggerProofAnimation();
+                var gate = document.getElementById('verification-gate');
+                if (gate) { gate.classList.add('verification-pass'); setTimeout(function() { gate.classList.remove('verification-pass'); }, 600); }
+                setTimeout(function() {
+                    document.querySelector('.verdict-panel .verdict-text').textContent = 'Decision request received. Verification in progress. (Connect to /api/ai/stream for full pipeline.)';
+                    if (intentLock) intentLock.classList.add('locked'), intentLock.classList.remove('unlocked');
+                    submitBtn.disabled = false;
+                }, 1200);
+            });
+
+            replayBtn.addEventListener('click', function() {
+                document.querySelectorAll('.merkle-node').forEach((n, i) => {
+                    setTimeout(() => n.classList.add('verified'), i * 120);
+                });
+            });
+
+            immersiveBtn.addEventListener('click', function() {
+                body.classList.toggle('immersive');
+            });
+        })();
+    </script>
+</body>
+</html>

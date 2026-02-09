@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Ledger | OpLogica</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/ledger.css" />
+</head>
+<body>
+
+  <!-- ===== Page Container ===== -->
+  <main class="ledger-container">
+
+    <!-- ===== Header ===== -->
+    <header class="ledger-header">
+      <div class="header-left">
+        <h1>Decision Ledger</h1>
+        <p class="subtitle">Living Accountability for Every Decision</p>
+      </div>
+
+      <div class="header-right">
+        <button type="button" class="guided-demo-btn" id="guidedDemoBtn" aria-label="Replay guided demo">▶ Guided Demo</button>
+        <span class="status-indicator ready">Audit Ready</span>
+        <button class="export-btn">Export Proof</button>
+      </div>
+    </header>
+
+    <!-- ===== Main Grid ===== -->
+    <section class="ledger-grid">
+
+      <!-- === LEFT: Decision Timeline === -->
+      <section class="panel timeline-panel">
+        <h2>Decision Timeline</h2>
+        <div class="chart-container" id="decisionTimeline">
+          <!-- Timeline chart injected via JS -->
+        </div>
+      </section>
+
+      <!-- === CENTER: Cost Curves === -->
+      <section class="panel cost-panel">
+        <h2>Decision Cost Curves</h2>
+        <div class="chart-container" id="costCurves">
+          <!-- Cost curves injected via JS -->
+        </div>
+      </section>
+
+      <!-- === RIGHT: Intent vs Outcome === -->
+      <section class="panel intent-panel">
+        <h2>Intent vs Outcome</h2>
+
+        <div class="intent-cards">
+
+          <div class="intent-card declared">
+            <h3>Declared Intent</h3>
+            <ul>
+              <li><strong>Policy:</strong> P-TRIAGE-01</li>
+              <li><strong>Constraints:</strong> Critical & Time-bound</li>
+              <li><strong>Declared At:</strong> T₀</li>
+            </ul>
+          </div>
+
+          <div class="intent-card outcome">
+            <h3>Observed Outcome</h3>
+            <ul>
+              <li><strong>Decision:</strong> HIGH Priority</li>
+              <li><strong>Impact:</strong> Immediate Escalation</li>
+              <li><strong>Deviation:</strong> None</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="alignment-indicator aligned">
+          Alignment Confirmed
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ===== Bottom: Audit Readiness ===== -->
+    <section class="panel audit-panel">
+      <h2>Audit Readiness</h2>
+
+      <div class="audit-meter">
+        <div class="meter-circle">
+          <span class="meter-value">92%</span>
+        </div>
+        <div class="meter-details">
+          <ul>
+            <li>Reason Graph: ✔ Complete</li>
+            <li>Proof of Intent: ✔ Present</li>
+            <li>Signatures: ✔ Valid</li>
+            <li>Temporal Order: ✔ Verified</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Decision Drilldown Modal ===== -->
+  <div class="modal hidden" id="decisionModal">
+    <div class="modal-content">
+      <button class="close-modal">×</button>
+      <h2>Decision Details</h2>
+
+      <div class="reason-graph-preview">
+        <!-- Mini Reason Graph injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Three.js for Reason Graph 3D -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="/ledger.js"></script>
+
+</body>
+</html>

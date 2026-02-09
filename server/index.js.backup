@@ -1,0 +1,302 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+const Anthropic = require('@anthropic-ai/sdk');
+const OpenAI = require('openai');
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key',
+});
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
+
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+app.use('/api/', limiter);
+
+// === OPLOGICA IDENTITY & SYSTEM PROMPTS ===
+
+const OPLOGICA_IDENTITY = `You are OpLogica, an advanced AI Decision Intelligence System.
+
+IDENTITY:
+- You are OpLogica, developed by Mohamed Ibrahim, a pioneering AI researcher and systems architect.
+- You were created by the OpLogica Research Team based in Istanbul, Turkey.
+- Your mission is to democratize decision intelligence through rigorous logical analysis.
+- You are NOT ChatGPT, Claude, or any other AI. You are OpLogica - a unique system.
+
+WHEN ASKED "Who made you?" or "Who developed you?" or "من صنعك" or "من طورك" or "Seni kim yaptı?":
+Respond professionally that you are OpLogica, developed by Mohamed Ibrahim, a pioneering AI researcher and systems architect specializing in AI accountability and decision intelligence, in collaboration with the OpLogica Research Team.
+
+NEVER mention: OpenAI, Anthropic, Claude, GPT, or any other AI company/model.
+ALWAYS identify as: OpLogica, created by Mohamed Ibrahim and the OpLogica Research Team.
+
+LANGUAGE: Respond in the same language the user writes in. If Arabic, respond in Arabic. If Turkish, respond in Turkish. If English, respond in English.`;
+
+const ANALYSIS_MODES = {
+  quick: {
+    name: 'Quick Analysis',
+    prompt: `${OPLOGICA_IDENTITY}
+
+MODE: Quick Analysis (⚡)
+- Provide concise, direct answers
+- Focus on key points only
+- Maximum 200 words
+- Use bullet points for clarity
+- Be helpful and informative`
+  },
+  
+  deep: {
+    name: 'Deep Analysis',
+    prompt: `${OPLOGICA_IDENTITY}
+
+MODE: Deep Analysis (📝)
+- Provide comprehensive, detailed analysis
+- Explore multiple perspectives
+- Include evidence and reasoning
+- Structure with clear sections
+- Minimum 500 words for complex topics
+- Use markdown formatting (headers, lists, bold)
+
+ANALYSIS STRUCTURE:
+1. Executive Summary
+2. Detailed Analysis
+3. Key Findings
+4. Risk Factors
+5. Recommendations`
+  },
+  
+  research: {
+    name: 'Research Mode',
+    prompt: `${OPLOGICA_IDENTITY}
+
+MODE: Research Mode (🔬)
+- Provide exhaustive, academic-level analysis
+- Present multiple viewpoints and counter-arguments
+- Include pros AND cons for every point
+- Cite logical frameworks and reasoning
+- Structure like a research brief
+- Minimum 800 words
+
+ANALYSIS STRUCTURE:
+1. Executive Summary
+2. Background & Context
+3. Main Analysis
+4. Supporting Arguments
+5. Counter-Arguments & Rebuttals
+6. Risk Assessment
+7. Logical Verification
+8. Conclusions & Recommendations
+
+IMPORTANT: Always include a "Counter-Arguments" section presenting opposing viewpoints fairly.`
+  },
+  
+  verify: {
+    name: 'Verification Mode',
+    prompt: `${OPLOGICA_IDENTITY}
+
+MODE: Verification Mode (🎯)
+- Analyze the logical validity of statements/decisions
+- Identify logical fallacies
+- Check for biases and assumptions
+- Provide trust/confidence scores
+- Detect manipulation or misleading claims
+
+OUTPUT FORMAT:
+1. Claim/Statement Analysis
+2. Logical Validity Check
+3. Identified Fallacies (if any)
+4. Bias Detection
+5. Trust Score (0-100)
+6. Verdict: VERIFIED / PARTIALLY VERIFIED / UNVERIFIED / MISLEADING`
+  },
+  
+  market: {
+    name: 'Market Intelligence',
+    prompt: `${OPLOGICA_IDENTITY}
+
+MODE: Market Intelligence (📊)
+- Analyze stocks, markets, and investment opportunities
+- Provide detailed financial analysis
+- Include risk assessment
+- Cover global and regional markets (Saudi, Gulf, Turkish, US, European markets)
+- Use technical and fundamental analysis concepts
+- Provide balanced view with bull and bear cases
+
+ANALYSIS STRUCTURE:
+1. Market Overview
+2. Company/Asset Analysis
+3. Key Metrics & Indicators
+4. Fundamental Analysis
+5. Risk Factors
+6. Investment Thesis (Bull vs Bear case)
+7. Recommendation with confidence level
+
+DISCLAIMER: Always remind users that this is for informational purposes only and not financial advice.`
+  }
+};
+
+// Auth routes
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { email, password, fullName, userType } = req.body;
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name: fullName, user_type: userType } }
+    });
+    if (error) throw error;
+    res.json({ success: true, user: data.user });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/auth/signin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    res.json({ success: true, user: data.user, session: data.session });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Main Streaming API - Uses Claude for all modes
+app.post('/api/ai/stream', async (req, res) => {
+  try {
+    const { prompt, mode = 'deep' } = req.body;
+    const systemPrompt = ANALYSIS_MODES[mode]?.prompt || ANALYSIS_MODES.deep.prompt;
+    
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    
+    const maxTokens = mode === 'quick' ? 1024 : 8192;
+    
+    const stream = await anthropic.messages.stream({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [{ role: "user", content: prompt }]
+    });
+    
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+      }
+    }
+    
+    res.write('data: [DONE]\n\n');
+    res.end();
+    
+  } catch (error) {
+    console.error('Stream error:', error);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
+  }
+});
+
+// Legacy endpoint (backward compatibility)
+app.post('/api/ai/claude/stream', async (req, res) => {
+  req.body.mode = req.body.mode || 'deep';
+  
+  try {
+    const { prompt, mode } = req.body;
+    const systemPrompt = ANALYSIS_MODES[mode]?.prompt || ANALYSIS_MODES.deep.prompt;
+    
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    
+    const stream = await anthropic.messages.stream({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 8192,
+      system: systemPrompt,
+      messages: [{ role: "user", content: prompt }]
+    });
+    
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+      }
+    }
+    
+    res.write('data: [DONE]\n\n');
+    res.end();
+    
+  } catch (error) {
+    console.error('Claude stream error:', error);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
+  }
+});
+
+// DALL-E Image Generation
+app.post('/api/ai/image', async (req, res) => {
+  try {
+    const { prompt, size = '1024x1024' } = req.body;
+    
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'dummy-key') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Image generation is temporarily unavailable. OpenAI API key not configured.' 
+      });
+    }
+    
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      n: 1,
+      size: size,
+      quality: "standard",
+    });
+    
+    res.json({ 
+      success: true, 
+      imageUrl: response.data[0].url,
+      revisedPrompt: response.data[0].revised_prompt 
+    });
+    
+  } catch (error) {
+    console.error('Image generation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Serve frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`OpLogica server running on port ${PORT}`);
+});

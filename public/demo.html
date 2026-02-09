@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Triage Demo | OpLogica Triadic Verification</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #050608;
+      --bg-secondary: #0a0d12;
+      --bg-card: #0f1318;
+      --border-color: #1e2a3a;
+      --text-primary: #f0f4f8;
+      --text-secondary: #8899a8;
+      --text-muted: #5a6a7a;
+      --accent-cyan: #00D9FF;
+      --accent-green: #00FF88;
+      --accent-red: #ff4757;
+      --gradient-primary: linear-gradient(135deg, #00D9FF 0%, #00FF88 100%);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+    .demo-page { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .demo-header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+    .demo-header h1 { font-size: 1.75rem; margin-bottom: 4px; }
+    .demo-header p { color: var(--text-secondary); font-size: 0.95rem; }
+    .demo-header a { color: var(--accent-cyan); text-decoration: none; }
+    .demo-header a:hover { text-decoration: underline; }
+    .demo-layout { display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: start; }
+    @media (max-width: 900px) { .demo-layout { grid-template-columns: 1fr; } }
+    .demo-form { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
+    .demo-form h2 { font-size: 1.1rem; margin-bottom: 16px; color: var(--accent-cyan); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.95rem; }
+    .form-group input:focus { outline: none; border-color: var(--accent-cyan); }
+    .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: var(--gradient-primary); color: var(--bg-primary); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(0, 217, 255, 0.3); }
+    .btn-ghost { background: transparent; color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-ghost:hover { border-color: var(--accent-cyan); background: rgba(0, 217, 255, 0.08); }
+    .demo-form .btn { width: 100%; margin-top: 8px; }
+    .demo-results { min-width: 0; }
+    .result-summary { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .result-summary h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--accent-cyan); }
+    .priority-badge { display: inline-block; padding: 6px 14px; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+    .priority-badge.HIGH { background: rgba(255, 71, 87, 0.2); border: 1px solid var(--accent-red); color: #ff6b7a; }
+    .priority-badge.MEDIUM { background: rgba(255, 140, 66, 0.2); border: 1px solid #ff8c42; color: #ffa366; }
+    .priority-badge.LOW { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .result-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; font-size: 0.9rem; color: var(--text-secondary); }
+    .result-meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .result-reasons { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
+    .result-reasons ul { list-style: none; }
+    .result-reasons li { padding: 6px 0; font-size: 0.9rem; color: var(--text-secondary); padding-left: 16px; position: relative; }
+    .result-reasons li::before { content: '→'; position: absolute; left: 0; color: var(--accent-cyan); }
+    .section-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 8px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500; cursor: pointer; text-align: left; font-family: inherit; transition: background 0.2s; }
+    .section-toggle:hover { background: var(--bg-secondary); }
+    .section-toggle .arrow { transition: transform 0.2s; }
+    .section-toggle[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .section-body { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-bottom: 12px; font-size: 0.85rem; overflow-x: auto; }
+    .section-body pre { margin: 0; white-space: pre-wrap; word-break: break-all; color: var(--text-secondary); }
+    .section-body .pass { color: var(--accent-green); }
+    .section-body .fail { color: var(--accent-red); }
+    .bundle-status { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-weight: 600; }
+    .bundle-status.verified { background: rgba(0, 255, 136, 0.12); border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .bundle-status.failed { background: rgba(255, 71, 87, 0.12); border: 1px solid var(--accent-red); color: var(--accent-red); }
+    .reason-graph-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; overflow: auto; }
+    .reason-graph-container h3 { font-size: 1rem; margin-bottom: 12px; color: var(--accent-cyan); }
+    #reasonGraphSvg { display: block; margin: 0 auto; }
+    .constraint-list { list-style: none; }
+    .constraint-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+    .constraint-list li:last-child { border-bottom: none; }
+    .constraint-list .icon { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .constraint-list .icon.pass { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); }
+    .constraint-list .icon.fail { background: rgba(255, 71, 87, 0.2); color: var(--accent-red); }
+    .export-wrap { margin-top: 16px; }
+    .empty-state { color: var(--text-muted); text-align: center; padding: 48px 24px; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 12px; }
+    .empty-state p { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="demo-page">
+    <header class="demo-header">
+      <h1>Medical Triage Demo</h1>
+      <p>Emergency Triage Protocol v2.1 — Triadic Verification (PoO, PoR, PoI). Deterministic rules; real cryptographic proofs.</p>
+      <p><a href="/">← Home</a> · <a href="/decision-ledger">Decision Ledger</a></p>
+    </header>
+
+    <div class="demo-layout">
+      <aside class="demo-form">
+        <h2>Patient parameters</h2>
+        <form id="triageForm">
+          <div class="form-group">
+            <label for="vital_score">Vital score (0–1)</label>
+            <input type="number" id="vital_score" name="vital_score" min="0" max="1" step="0.01" value="0.32" required>
+            <div class="form-hint">C1: &lt; 0.5 → HIGH priority</div>
+          </div>
+          <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="0" max="120" value="68" required>
+          </div>
+          <div class="form-group">
+            <label for="comorbidity_index">Comorbidity index (0–1)</label>
+            <input type="number" id="comorbidity_index" name="comorbidity_index" min="0" max="1" step="0.01" value="0.7" required>
+          </div>
+          <div class="form-group">
+            <label for="wait_time">Wait time (minutes)</label>
+            <input type="number" id="wait_time" name="wait_time" min="0" value="50" required>
+            <div class="form-hint">C3: &gt; 60 → reassessment</div>
+          </div>
+          <div class="form-group">
+            <label for="resource_score">Resource score (0–1)</label>
+            <input type="number" id="resource_score" name="resource_score" min="0" max="1" step="0.01" value="0.6" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Run Triage</button>
+        </form>
+        <div style="margin-top: 16px;">
+          <button type="button" class="btn btn-ghost" id="loadTest1" style="width:100%; margin-bottom:8px;">Test 1: Critical (vital=0.32)</button>
+          <button type="button" class="btn btn-ghost" id="loadTest2" style="width:100%; margin-bottom:8px;">Test 2: Stable (vital=0.75)</button>
+          <button type="button" class="btn btn-ghost" id="loadTest3" style="width:100%; margin-bottom:8px;">Test 3: Borderline (vital=0.50)</button>
+        </div>
+      </aside>
+
+      <div class="demo-results">
+        <div id="resultArea">
+          <div class="empty-state" id="emptyState">
+            <p>Enter patient parameters and click <strong>Run Triage</strong> to see the decision and verification bundle.</p>
+            <p>Test cases above load predefined inputs.</p>
+          </div>
+          <div id="resultContent" style="display: none;">
+            <div class="bundle-status" id="bundleStatus"></div>
+            <div class="result-summary" id="resultSummary"></div>
+            <div class="reason-graph-container">
+              <h3>Reason Graph (PoR)</h3>
+              <svg id="reasonGraphSvg" width="700" height="380" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+            <button type="button" class="section-toggle" id="togglePoO" aria-expanded="false">
+              <span>Proof of Operation (PoO)</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoO" hidden></div>
+            <button type="button" class="section-toggle" id="togglePoR" aria-expanded="false">
+              <span>Proof of Reason (PoR) — delta logic & hash</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoR" hidden></div>
+            <button type="button" class="section-toggle" id="togglePoI" aria-expanded="false">
+              <span>Proof of Intent (PoI) — constraints</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoI" hidden></div>
+            <div class="export-wrap">
+              <button type="button" class="btn btn-ghost" id="exportJson">Export bundle as JSON</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById('triageForm');
+      const emptyState = document.getElementById('emptyState');
+      const resultContent = document.getElementById('resultContent');
+      const bundleStatus = document.getElementById('bundleStatus');
+      const resultSummary = document.getElementById('resultSummary');
+      const reasonGraphSvg = document.getElementById('reasonGraphSvg');
+      const bodyPoO = document.getElementById('bodyPoO');
+      const bodyPoR = document.getElementById('bodyPoR');
+      const bodyPoI = document.getElementById('bodyPoI');
+      let lastResult = null;
+
+      function getFormData() {
+        return {
+          vital_score: Number(form.vital_score.value),
+          age: Number(form.age.value),
+          comorbidity_index: Number(form.comorbidity_index.value),
+          wait_time: Number(form.wait_time.value),
+          resource_score: Number(form.resource_score.value)
+        };
+      }
+
+      function loadTest(vital, age, comorbidity, wait, resource) {
+        form.vital_score.value = vital;
+        form.age.value = age;
+        form.comorbidity_index.value = comorbidity;
+        form.wait_time.value = wait;
+        form.resource_score.value = resource;
+      }
+
+      document.getElementById('loadTest1').addEventListener('click', function () {
+        loadTest(0.32, 68, 0.7, 50, 0.6);
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+      document.getElementById('loadTest2').addEventListener('click', function () {
+        loadTest(0.75, 30, 0.2, 10, 0.9);
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+      document.getElementById('loadTest3').addEventListener('click', function () {
+        loadTest(0.5, 50, 0.5, 30, 0.5);
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const data = getFormData();
+        try {
+          const res = await fetch('/api/triage-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || err.error || 'Request failed');
+          }
+          const result = await res.json();
+          lastResult = result;
+          renderResult(result);
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      });
+
+      function renderResult(result) {
+        emptyState.style.display = 'none';
+        resultContent.style.display = 'block';
+
+        const d = result.decision;
+        const vb = result.verification_bundle;
+        const isVerified = vb.overall_result === 'VERIFIED';
+
+        bundleStatus.className = 'bundle-status ' + (isVerified ? 'verified' : 'failed');
+        bundleStatus.textContent = (isVerified ? '✓ ' : '✗ ') + 'Verification bundle: ' + vb.overall_result;
+
+        resultSummary.innerHTML =
+          '<h2>Decision</h2>' +
+          '<span class="priority-badge ' + d.priority + '">' + d.priority + ' Priority</span>' +
+          '<div class="result-meta">' +
+          '<span>Critical: ' + d.critical + '</span>' +
+          '<span>Urgency: ' + d.urgency + '</span>' +
+          '<span>Reassessment: ' + d.reassessment + '</span>' +
+          '</div>' +
+          (d.reasons && d.reasons.length ? '<div class="result-reasons"><ul>' + d.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') + '</ul></div>' : '');
+
+        renderReasonGraph(vb.por.graph);
+        renderPoO(vb.poo);
+        renderPoR(vb.por);
+        renderPoI(vb.poi);
+      }
+
+      function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      function renderReasonGraph(graph) {
+        const vertices = graph.vertices || [];
+        const edges = graph.edges || [];
+        const W = 700;
+        const H = 380;
+        const types = { premise: 0, rule: 1, conclusion: 2 };
+        const byType = { premise: [], rule: [], conclusion: [] };
+        vertices.forEach(function (v) {
+          const t = v.type in byType ? v.type : 'premise';
+          byType[t].push(v);
+        });
+        const idToIndex = {};
+        vertices.forEach(function (v, i) { idToIndex[v.id] = i; });
+        const colW = W / 3;
+        const positions = {};
+        let y = 36;
+        ['premise', 'rule', 'conclusion'].forEach(function (type) {
+          const list = byType[type];
+          const colIndex = type === 'premise' ? 0 : type === 'rule' ? 1 : 2;
+          const startX = colW * colIndex + colW / 2;
+          list.forEach(function (v, i) {
+            positions[v.id] = { x: startX, y: y + i * 26 };
+          });
+          y += list.length * 26 + 20;
+        });
+        const ns = 'http://www.w3.org/2000/svg';
+        reasonGraphSvg.innerHTML = '';
+        const defs = document.createElementNS(ns, 'defs');
+        defs.innerHTML = '<marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#00D9FF"/></marker>';
+        reasonGraphSvg.appendChild(defs);
+        edges.forEach(function (e) {
+          const from = positions[e.from];
+          const to = positions[e.to];
+          if (!from || !to) return;
+          const line = document.createElementNS(ns, 'line');
+          line.setAttribute('x1', from.x);
+          line.setAttribute('y1', from.y);
+          line.setAttribute('x2', to.x);
+          line.setAttribute('y2', to.y);
+          line.setAttribute('stroke', 'rgba(0, 217, 255, 0.5)');
+          line.setAttribute('stroke-width', '1.5');
+          line.setAttribute('marker-end', 'url(#arrow)');
+          reasonGraphSvg.appendChild(line);
+        });
+        vertices.forEach(function (v) {
+          const pos = positions[v.id];
+          if (!pos) return;
+          const g = document.createElementNS(ns, 'g');
+          const type = v.type in byType ? v.type : 'premise';
+          const fill = type === 'premise' ? 'rgba(0, 217, 255, 0.15)' : type === 'rule' ? 'rgba(0, 255, 136, 0.12)' : 'rgba(168, 85, 247, 0.15)';
+          const stroke = type === 'premise' ? '#00D9FF' : type === 'rule' ? '#00FF88' : '#a855f7';
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', pos.x - 72);
+          rect.setAttribute('y', pos.y - 12);
+          rect.setAttribute('width', 144);
+          rect.setAttribute('height', 24);
+          rect.setAttribute('rx', 6);
+          rect.setAttribute('fill', fill);
+          rect.setAttribute('stroke', stroke);
+          rect.setAttribute('stroke-width', '1');
+          const text = document.createElementNS(ns, 'text');
+          text.setAttribute('x', pos.x);
+          text.setAttribute('y', pos.y + 4);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', '#f0f4f8');
+          text.setAttribute('font-size', '11');
+          text.textContent = (v.label || v.id).slice(0, 28);
+          g.appendChild(rect);
+          g.appendChild(text);
+          reasonGraphSvg.appendChild(g);
+        });
+      }
+
+      function renderPoO(poo) {
+        bodyPoO.innerHTML = '<pre>' + escapeHtml(JSON.stringify(poo, null, 2)) + '</pre>';
+      }
+
+      function renderPoR(por) {
+        bodyPoR.innerHTML = '<pre>' + escapeHtml(JSON.stringify({ hash: por.hash, signature: por.signature, delta_logic: por.delta_logic }, null, 2)) + '</pre>';
+      }
+
+      function renderPoI(poi) {
+        let html = '<p><strong>Policy:</strong> ' + escapeHtml(poi.policy) + ' · Declared: ' + escapeHtml(poi.declaration_time) + '</p>';
+        html += '<ul class="constraint-list">';
+        (poi.results || []).forEach(function (r) {
+          const cls = r.satisfied ? 'pass' : 'fail';
+          html += '<li><span class="icon ' + cls + '">' + (r.satisfied ? '✓' : '✗') + '</span><span>' + escapeHtml(r.constraint) + ' — ' + escapeHtml(r.detail) + '</span></li>';
+        });
+        html += '</ul>';
+        html += '<p class="' + (poi.all_satisfied ? 'pass' : 'fail') + '">All mandatory constraints satisfied: ' + poi.all_satisfied + '</p>';
+        bodyPoI.innerHTML = html;
+      }
+
+      ['PoO', 'PoR', 'PoI'].forEach(function (name) {
+        const toggle = document.getElementById('toggle' + name);
+        const body = document.getElementById('body' + name);
+        toggle.addEventListener('click', function () {
+          const open = toggle.getAttribute('aria-expanded') !== 'true';
+          toggle.setAttribute('aria-expanded', open);
+          body.hidden = !open;
+        });
+      });
+
+      document.getElementById('exportJson').addEventListener('click', function () {
+        if (!lastResult) return;
+        const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'triage-verification-bundle-' + Date.now() + '.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+    })();
+  </script>
+</body>
+</html>
