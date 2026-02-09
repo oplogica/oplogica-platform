@@ -21,6 +21,8 @@ const { triageDecision } = require('./triageEngine');
 const creditEngine = require('./creditEngine');
 const hiringEngine = require('./hiringEngine');
 const permitEngine = require('./permitEngine');
+const legalEngine = require('./legalEngine');
+const governmentEngine = require('./governmentEngine');
 const { SYSTEM_PROMPT } = require('./systemPrompt');
 const { detectLanguage, t } = require('./i18n');
 
@@ -1494,6 +1496,32 @@ app.get('/demo/permits', (req, res) => {
 app.post('/api/permit-demo', express.json(), (req, res) => {
     try {
         const result = permitEngine.evaluatePermit(req.body || {});
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// Legal demo
+app.get('/demo/legal', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/demo-legal.html'));
+});
+app.post('/api/legal-demo', express.json(), (req, res) => {
+    try {
+        const result = legalEngine.evaluateLegal(req.body || {});
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// Government demo
+app.get('/demo/government', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/demo-government.html'));
+});
+app.post('/api/government-demo', express.json(), (req, res) => {
+    try {
+        const result = governmentEngine.evaluateGovernment(req.body || {});
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
