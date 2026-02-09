@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Government Service Assessment Demo | OpLogica Triadic Verification</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%2300D9FF' stroke-width='2'/%3E%3Cpath d='M12 20 Q20 8 28 20 Q20 32 12 20' fill='none' stroke='%2300FF88' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #050608;
+      --bg-secondary: #0a0d12;
+      --bg-card: #0f1318;
+      --border-color: #1e2a3a;
+      --text-primary: #f0f4f8;
+      --text-secondary: #8899a8;
+      --text-muted: #5a6a7a;
+      --accent-cyan: #00D9FF;
+      --accent-green: #00FF88;
+      --accent-red: #ff4757;
+      --accent-amber: #f59e0b;
+      --gradient-primary: linear-gradient(135deg, #00D9FF 0%, #00FF88 100%);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+    .demo-page { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .demo-header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+    .demo-header h1 { font-size: 1.75rem; margin-bottom: 4px; }
+    .demo-header p { color: var(--text-secondary); font-size: 0.95rem; }
+    .demo-header a { color: var(--accent-cyan); text-decoration: none; }
+    .demo-header a:hover { text-decoration: underline; }
+    .demo-layout { display: grid; grid-template-columns: 340px 1fr; gap: 32px; align-items: start; }
+    @media (max-width: 900px) { .demo-layout { grid-template-columns: 1fr; } }
+    .demo-form { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
+    .demo-form h2 { font-size: 1.1rem; margin-bottom: 16px; color: var(--accent-cyan); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.95rem; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-cyan); }
+    .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: var(--gradient-primary); color: var(--bg-primary); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(0, 217, 255, 0.3); }
+    .btn-ghost { background: transparent; color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-ghost:hover { border-color: var(--accent-cyan); background: rgba(0, 217, 255, 0.08); }
+    .demo-form .btn { width: 100%; margin-top: 8px; }
+    .demo-results { min-width: 0; }
+    .result-summary { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .result-summary h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--accent-cyan); }
+    .recommendation-badge { display: inline-block; padding: 6px 14px; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+    .recommendation-badge.APPROVED { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .recommendation-badge.REJECTED { background: rgba(255, 71, 87, 0.2); border: 1px solid var(--accent-red); color: #ff6b7a; }
+    .recommendation-badge.FURTHER_REVIEW { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--accent-amber); color: #fbbf24; }
+    .result-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; font-size: 0.9rem; color: var(--text-secondary); }
+    .result-meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .risk-bar-wrap { margin: 10px 0; }
+    .risk-bar-wrap label { font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+    .risk-bar { height: 12px; background: var(--bg-secondary); border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); }
+    .risk-bar-fill { height: 100%; border-radius: 6px; transition: width 0.3s; }
+    .rules-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 12px; }
+    .rules-table th, .rules-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .rules-table th { color: var(--accent-cyan); }
+    .rules-table .triggered { color: var(--accent-green); }
+    .rules-table .not-triggered { color: var(--text-muted); }
+    .result-reasons { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
+    .result-reasons ul { list-style: none; }
+    .result-reasons li { padding: 6px 0; font-size: 0.9rem; color: var(--text-secondary); padding-left: 16px; position: relative; }
+    .result-reasons li::before { content: '→'; position: absolute; left: 0; color: var(--accent-cyan); }
+    .section-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 8px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500; cursor: pointer; text-align: left; font-family: inherit; transition: background 0.2s; }
+    .section-toggle:hover { background: var(--bg-secondary); }
+    .section-toggle .arrow { transition: transform 0.2s; }
+    .section-toggle[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .section-body { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-bottom: 12px; font-size: 0.85rem; overflow-x: auto; }
+    .section-body pre { margin: 0; white-space: pre-wrap; word-break: break-all; color: var(--text-secondary); }
+    .section-body .pass { color: var(--accent-green); }
+    .section-body .fail { color: var(--accent-red); }
+    .bundle-status { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-weight: 600; }
+    .bundle-status.verified { background: rgba(0, 255, 136, 0.12); border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .bundle-status.failed { background: rgba(255, 71, 87, 0.12); border: 1px solid var(--accent-red); color: var(--accent-red); }
+    .reason-graph-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; overflow: auto; }
+    .reason-graph-container h3 { font-size: 1rem; margin-bottom: 12px; color: var(--accent-cyan); }
+    #reasonGraphSvg { display: block; margin: 0 auto; }
+    .constraint-list { list-style: none; }
+    .constraint-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+    .constraint-list li:last-child { border-bottom: none; }
+    .constraint-list .icon { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .constraint-list .icon.pass { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); }
+    .constraint-list .icon.fail { background: rgba(255, 71, 87, 0.2); color: var(--accent-red); }
+    .export-wrap { margin-top: 16px; }
+    .empty-state { color: var(--text-muted); text-align: center; padding: 48px 24px; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 12px; }
+    .empty-state p { margin-bottom: 12px; }
+    .disclaimer { margin-top: 24px; padding: 12px 16px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="demo-page">
+    <header class="demo-header">
+      <h1>🏛️ Government Service Assessment Demo</h1>
+      <p>Government Service Assessment Protocol v1.0 — Triadic Verification (PoO, PoR, PoI). Deterministic rules; real cryptographic proofs.</p>
+      <p><a href="/">← Home</a> · <a href="/demo">Medical</a> · <a href="/demo/finance">Finance</a> · <a href="/demo/hiring">Hiring</a> · <a href="/demo/permits">Permits</a> · <a href="/demo/legal">Legal</a></p>
+    </header>
+
+    <div class="demo-layout">
+      <aside class="demo-form">
+        <h2>Service Request Parameters</h2>
+        <form id="govForm">
+          <div class="form-group">
+            <label for="service_type">Service Type</label>
+            <select id="service_type" name="service_type">
+              <option value="LICENSE">License</option>
+              <option value="BENEFIT">Benefit</option>
+              <option value="PERMIT">Permit</option>
+              <option value="REGISTRATION" selected>Registration</option>
+              <option value="GENERAL">General</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="eligibility_score">Eligibility Score (0–1)</label>
+            <input type="number" id="eligibility_score" name="eligibility_score" min="0" max="1" step="0.01" value="0.75" required>
+            <div class="form-hint">G2: &lt; 0.4 → REJECTED</div>
+          </div>
+          <div class="form-group">
+            <label for="documentation_score">Documentation Completeness (0–1)</label>
+            <input type="number" id="documentation_score" name="documentation_score" min="0" max="1" step="0.01" value="0.80" required>
+            <div class="form-hint">G3: &lt; 0.5 → INCOMPLETE</div>
+          </div>
+          <div class="form-group">
+            <label for="service_capacity">Service Capacity (0–1)</label>
+            <input type="number" id="service_capacity" name="service_capacity" min="0" max="1" step="0.01" value="0.70" required>
+            <div class="form-hint">G8: &lt; 0.2 → capacity warning</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="identity_verified">Identity</label>
+              <select id="identity_verified" name="identity_verified">
+                <option value="true" selected>Verified</option>
+                <option value="false">Unverified</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="residency_verified">Residency</label>
+              <select id="residency_verified" name="residency_verified">
+                <option value="true" selected>Verified</option>
+                <option value="false">Unverified</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tax_compliant">Tax Compliance</label>
+              <select id="tax_compliant" name="tax_compliant">
+                <option value="true" selected>Compliant</option>
+                <option value="false">Non-Compliant</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="criminal_flagged">Criminal Record</label>
+              <select id="criminal_flagged" name="criminal_flagged">
+                <option value="false" selected>Clear</option>
+                <option value="true">Flagged</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="duplicate_detected">Duplicate Check</label>
+              <select id="duplicate_detected" name="duplicate_detected">
+                <option value="false" selected>No Duplicate</option>
+                <option value="true">Duplicate Found</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="priority_group">Priority Group</label>
+              <select id="priority_group" name="priority_group">
+                <option value="false" selected>Standard</option>
+                <option value="true">Priority</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Run Assessment</button>
+        </form>
+        <div style="margin-top: 16px;">
+          <button type="button" class="btn btn-ghost" id="loadTest1" style="width:100%; margin-bottom:8px;">Test 1: Clean Application</button>
+          <button type="button" class="btn btn-ghost" id="loadTest2" style="width:100%; margin-bottom:8px;">Test 2: Missing Documents</button>
+          <button type="button" class="btn btn-ghost" id="loadTest3" style="width:100%; margin-bottom:8px;">Test 3: Tax Non-Compliant</button>
+          <button type="button" class="btn btn-ghost" id="loadTest4" style="width:100%; margin-bottom:8px;">Test 4: Identity Failed</button>
+        </div>
+      </aside>
+
+      <div class="demo-results">
+        <div id="resultArea">
+          <div class="empty-state" id="emptyState">
+            <p>Enter service request parameters and click <strong>Run Assessment</strong> to see the government service decision and verification bundle.</p>
+            <p>Test cases above load predefined scenarios.</p>
+          </div>
+          <div id="resultContent" style="display: none;">
+            <div class="bundle-status" id="bundleStatus"></div>
+            <div class="result-summary" id="resultSummary"></div>
+            <div class="reason-graph-container">
+              <h3>Reason Graph (PoR)</h3>
+              <svg id="reasonGraphSvg" width="700" height="480" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+            <button type="button" class="section-toggle" id="togglePoO" aria-expanded="false">
+              <span>🔐 Proof of Origin (PoO)</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoO" hidden></div>
+            <button type="button" class="section-toggle" id="togglePoR" aria-expanded="false">
+              <span>📐 Proof of Reason (PoR) — graph hash & signature</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoR" hidden></div>
+            <button type="button" class="section-toggle" id="togglePoI" aria-expanded="false">
+              <span>🎯 Proof of Intent (PoI) — policy constraints</span>
+              <span class="arrow">▶</span>
+            </button>
+            <div class="section-body" id="bodyPoI" hidden></div>
+            <div class="export-wrap">
+              <button type="button" class="btn btn-ghost" id="exportJson">Export bundle as JSON</button>
+            </div>
+            <div class="disclaimer">⚠️ This engine provides eligibility and compliance analysis for decision-support only. It does not represent official government decisions. All outputs must be reviewed by authorized public servants before action.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById('govForm');
+      const emptyState = document.getElementById('emptyState');
+      const resultContent = document.getElementById('resultContent');
+      const bundleStatus = document.getElementById('bundleStatus');
+      const resultSummary = document.getElementById('resultSummary');
+      const reasonGraphSvg = document.getElementById('reasonGraphSvg');
+      const bodyPoO = document.getElementById('bodyPoO');
+      const bodyPoR = document.getElementById('bodyPoR');
+      const bodyPoI = document.getElementById('bodyPoI');
+      let lastResult = null;
+
+      function getFormData() {
+        return {
+          service_type: form.service_type.value,
+          eligibility_score: Number(form.eligibility_score.value),
+          documentation_score: Number(form.documentation_score.value),
+          service_capacity: Number(form.service_capacity.value),
+          identity_verified: form.identity_verified.value === 'true',
+          residency_verified: form.residency_verified.value === 'true',
+          tax_compliant: form.tax_compliant.value === 'true',
+          criminal_flagged: form.criminal_flagged.value === 'true',
+          duplicate_detected: form.duplicate_detected.value === 'true',
+          priority_group: form.priority_group.value === 'true',
+          requires_residency: true,
+          requires_clearance: true
+        };
+      }
+
+      function loadTest(st, es, ds, sc, iv, rv, tc, cf, dd, pg) {
+        form.service_type.value = st;
+        form.eligibility_score.value = es;
+        form.documentation_score.value = ds;
+        form.service_capacity.value = sc;
+        form.identity_verified.value = iv;
+        form.residency_verified.value = rv;
+        form.tax_compliant.value = tc;
+        form.criminal_flagged.value = cf;
+        form.duplicate_detected.value = dd;
+        form.priority_group.value = pg;
+      }
+
+      document.getElementById('loadTest1').addEventListener('click', function () {
+        loadTest('LICENSE', 0.85, 0.90, 0.70, 'true', 'true', 'true', 'false', 'false', 'false');
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+      document.getElementById('loadTest2').addEventListener('click', function () {
+        loadTest('BENEFIT', 0.70, 0.35, 0.60, 'true', 'true', 'true', 'false', 'false', 'true');
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+      document.getElementById('loadTest3').addEventListener('click', function () {
+        loadTest('REGISTRATION', 0.80, 0.75, 0.50, 'true', 'true', 'false', 'true', 'false', 'false');
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+      document.getElementById('loadTest4').addEventListener('click', function () {
+        loadTest('PERMIT', 0.60, 0.70, 0.15, 'false', 'false', 'true', 'false', 'false', 'false');
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const data = getFormData();
+        try {
+          const res = await fetch('/api/government-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || err.error || 'Request failed');
+          }
+          const result = await res.json();
+          lastResult = result;
+          renderResult(result);
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      });
+
+      function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      function renderResult(result) {
+        emptyState.style.display = 'none';
+        resultContent.style.display = 'block';
+        const d = result.decision;
+        const vb = result.verification_bundle;
+        const isVerified = vb.overall_result === 'VERIFIED';
+
+        bundleStatus.className = 'bundle-status ' + (isVerified ? 'verified' : 'failed');
+        bundleStatus.textContent = (isVerified ? '✓ ' : '✗ ') + 'Verification bundle: ' + vb.overall_result;
+
+        const compPct = Math.round(d.compliance_score * 100);
+        let barColor = '#00FF88';
+        if (compPct < 60) barColor = '#f59e0b';
+        if (compPct < 40) barColor = '#ff4757';
+
+        let flags = [];
+        if (d.tax_hold) flags.push('🚫 Tax Hold');
+        if (d.capacity_warning) flags.push('⚠️ Capacity Warning');
+        if (d.processing_priority === 'ELEVATED') flags.push('⚡ Priority Processing');
+
+        let rulesTable = '';
+        if (d.allRules && d.allRules.length) {
+          rulesTable = '<h3 style="font-size:1rem;color:var(--accent-cyan);margin-top:16px;margin-bottom:8px;">Complete Rule Evaluation</h3><table class="rules-table"><thead><tr><th>Rule</th><th>Triggered</th><th>Detail</th></tr></thead><tbody>' +
+            d.allRules.map(function (r) {
+              const cls = r.triggered ? 'triggered' : 'not-triggered';
+              return '<tr><td>' + escapeHtml(r.id + ': ' + r.rule) + '</td><td class="' + cls + '">' + (r.triggered ? 'Yes' : 'No') + '</td><td>' + escapeHtml(r.detail) + '</td></tr>';
+            }).join('') + '</tbody></table>';
+        }
+
+        resultSummary.innerHTML =
+          '<h2>Decision</h2>' +
+          '<span class="recommendation-badge ' + d.recommendation + '">' + d.recommendation + '</span>' +
+          '<div class="result-meta">' +
+          '<span>Status: ' + d.status + '</span>' +
+          '<span>Service: ' + escapeHtml(d.service_type) + '</span>' +
+          '<span>Priority: ' + d.processing_priority + '</span>' +
+          '<span>Rules Triggered: ' + d.triggered_rules + '</span>' +
+          '</div>' +
+          (flags.length ? '<div style="margin:8px 0;font-size:0.9rem;">' + flags.join(' · ') + '</div>' : '') +
+          '<div class="risk-bar-wrap"><label>Compliance Score (0–100, higher = better)</label><div class="risk-bar"><div class="risk-bar-fill" style="width:' + compPct + '%;background:' + barColor + ';"></div></div><span style="font-size:0.85rem;color:var(--text-muted);">' + compPct + '%</span></div>' +
+          rulesTable +
+          (d.reasons && d.reasons.length ? '<div class="result-reasons"><ul>' + d.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') + '</ul></div>' : '');
+
+        renderReasonGraph(vb.por.graph);
+        renderPoO(vb.poo);
+        renderPoR(vb.por);
+        renderPoI(vb.poi);
+      }
+
+      function renderReasonGraph(graph) {
+        const vertices = graph.vertices || [];
+        const edges = graph.edges || [];
+        const W = 700, H = 480;
+        const byType = { premise: [], rule: [], conclusion: [] };
+        vertices.forEach(function (v) { (byType[v.type] || byType.premise).push(v); });
+        const positions = {};
+        const cols = [
+          { type: 'premise', x: W * 0.17 },
+          { type: 'rule', x: W * 0.50 },
+          { type: 'conclusion', x: W * 0.83 }
+        ];
+        cols.forEach(function (col) {
+          const list = byType[col.type];
+          const spacing = Math.min(32, (H - 40) / (list.length || 1));
+          const startY = (H - (list.length - 1) * spacing) / 2;
+          list.forEach(function (v, i) { positions[v.id] = { x: col.x, y: startY + i * spacing }; });
+        });
+        const ns = 'http://www.w3.org/2000/svg';
+        reasonGraphSvg.innerHTML = '';
+        const defs = document.createElementNS(ns, 'defs');
+        defs.innerHTML = '<marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#00D9FF"/></marker>';
+        reasonGraphSvg.appendChild(defs);
+        edges.forEach(function (e) {
+          const from = positions[e.from], to = positions[e.to];
+          if (!from || !to) return;
+          const line = document.createElementNS(ns, 'line');
+          line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+          line.setAttribute('x2', to.x); line.setAttribute('y2', to.y);
+          line.setAttribute('stroke', 'rgba(0, 217, 255, 0.4)');
+          line.setAttribute('stroke-width', '1.5');
+          line.setAttribute('marker-end', 'url(#arrow)');
+          reasonGraphSvg.appendChild(line);
+        });
+        vertices.forEach(function (v) {
+          const pos = positions[v.id];
+          if (!pos) return;
+          const fill = v.type === 'premise' ? 'rgba(0, 217, 255, 0.15)' : v.type === 'rule' ? 'rgba(0, 255, 136, 0.12)' : 'rgba(168, 85, 247, 0.15)';
+          const stroke = v.type === 'premise' ? '#00D9FF' : v.type === 'rule' ? '#00FF88' : '#a855f7';
+          const g = document.createElementNS(ns, 'g');
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', pos.x - 80); rect.setAttribute('y', pos.y - 12);
+          rect.setAttribute('width', 160); rect.setAttribute('height', 24);
+          rect.setAttribute('rx', 6); rect.setAttribute('fill', fill);
+          rect.setAttribute('stroke', stroke); rect.setAttribute('stroke-width', '1');
+          const text = document.createElementNS(ns, 'text');
+          text.setAttribute('x', pos.x); text.setAttribute('y', pos.y + 4);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', '#f0f4f8'); text.setAttribute('font-size', '10');
+          text.textContent = (v.label || v.id).slice(0, 32);
+          g.appendChild(rect); g.appendChild(text);
+          reasonGraphSvg.appendChild(g);
+        });
+      }
+
+      function renderPoO(poo) {
+        bodyPoO.innerHTML = '<pre>' + escapeHtml(JSON.stringify(poo, null, 2)) + '</pre>';
+      }
+      function renderPoR(por) {
+        bodyPoR.innerHTML = '<pre>' + escapeHtml(JSON.stringify({ hash: por.hash, signature: por.signature }, null, 2)) + '</pre>';
+      }
+      function renderPoI(poi) {
+        let html = '<p><strong>Policy:</strong> ' + escapeHtml(poi.policy) + ' · Declared: ' + escapeHtml(poi.declaration_time) + '</p>';
+        html += '<ul class="constraint-list">';
+        (poi.results || []).forEach(function (r) {
+          const cls = r.satisfied ? 'pass' : 'fail';
+          html += '<li><span class="icon ' + cls + '">' + (r.satisfied ? '✓' : '✗') + '</span><span>' + escapeHtml(r.constraint) + ' — ' + escapeHtml(r.detail) + '</span></li>';
+        });
+        html += '</ul>';
+        html += '<p class="' + (poi.all_satisfied ? 'pass' : 'fail') + '">All mandatory constraints satisfied: ' + poi.all_satisfied + '</p>';
+        bodyPoI.innerHTML = html;
+      }
+
+      ['PoO', 'PoR', 'PoI'].forEach(function (name) {
+        const toggle = document.getElementById('toggle' + name);
+        const body = document.getElementById('body' + name);
+        toggle.addEventListener('click', function () {
+          const open = toggle.getAttribute('aria-expanded') !== 'true';
+          toggle.setAttribute('aria-expanded', open);
+          body.hidden = !open;
+        });
+      });
+
+      document.getElementById('exportJson').addEventListener('click', function () {
+        if (!lastResult) return;
+        const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'government-verification-bundle-' + Date.now() + '.json';
+        a.click(); URL.revokeObjectURL(a.href);
+      });
+    })();
+  </script>
+</body>
+</html>
