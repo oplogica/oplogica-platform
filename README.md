@@ -8,7 +8,7 @@ Building trust infrastructure for the next era of AI governance.
 
 ```mermaid
 graph TB
-    subgraph Client["🌐 Client Layer"]
+    subgraph Client["🌐 Interface Layer"]
         UI[Web Interface<br/>EN / AR / TR]
         Chat[Chat Widget]
         Ledger[Decision Ledger]
@@ -19,15 +19,21 @@ graph TB
         Server[Express Server<br/>Authentication & Routing]
     end
 
-    subgraph Engines["🧠 Verification Engines"]
+    subgraph Engines["🧠 Reasoning Layer — generates explanations"]
         Triage[Triage Engine]
         Permit[Permit Engine]
         Credit[Credit Scoring Engine]
         Hiring[Hiring Assessment Engine]
     end
 
-    subgraph Core["🔒 Core Services"]
-        AI[AI Reasoning Layer<br/>System Prompt & i18n]
+    subgraph Governance["🏛️ Governance & Policy Layer"]
+        Policy[Policy Constraints]
+        Compliance[Compliance Hooks]
+        Audit[Audit Trail]
+    end
+
+    subgraph Core["🔒 Decision Layer — produces verified outcomes"]
+        AI[AI Reasoning Core<br/>System Prompt & i18n]
         Email[Email Verification]
         DB[(PostgreSQL<br/>Decision Store)]
     end
@@ -40,19 +46,33 @@ graph TB
     Server --> Permit
     Server --> Credit
     Server --> Hiring
-    Triage --> AI
-    Permit --> AI
-    Credit --> AI
-    Hiring --> AI
-    AI --> DB
+    Triage --> Policy
+    Permit --> Policy
+    Credit --> Policy
+    Hiring --> Policy
+    Policy --> AI
+    Compliance --> AI
+    AI --> Audit
+    Audit --> DB
     Server --> Email
     Email --> DB
 
     style Client fill:#1a1a2e,stroke:#16213e,color:#e94560
     style API fill:#0f3460,stroke:#16213e,color:#e94560
     style Engines fill:#16213e,stroke:#1a1a2e,color:#e94560
+    style Governance fill:#533483,stroke:#1a1a2e,color:#e94560
     style Core fill:#1a1a2e,stroke:#533483,color:#e94560
 ```
+
+### Legend
+
+| Symbol | Meaning |
+|--------|---------|
+| 🧠 **Reasoning Layer** | Generates explanations and analysis for each input |
+| 🏛️ **Governance Layer** | Applies policy constraints and compliance checks |
+| 🔒 **Decision Layer** | Produces verified, auditable outcomes stored on record |
+
+> **Reasoning ≠ Decision:** The Reasoning Layer generates interpretations and explanations. The Decision Layer validates, records, and makes outcomes auditable. This separation ensures every output is both explainable and verifiable.
 
 ## About
 
