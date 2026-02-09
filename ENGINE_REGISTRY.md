@@ -422,7 +422,7 @@ Apache 2.0 — See [LICENSE](./LICENSE)
 ## Citation
 
 ```
-Mohamed Al-Alawi (2025). OpLogica — AI Verification & Decision Intelligence Platform.
+Mohamed Ibrahim (2025). OpLogica — AI Verification & Decision Intelligence Platform.
 DOI: 10.5281/zenodo.17275281
 ```
 
