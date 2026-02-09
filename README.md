@@ -29,13 +29,16 @@ graph TB
     subgraph Governance["🏛️ Governance & Policy Layer"]
         Policy[Policy Constraints]
         Compliance[Compliance Hooks]
-        Audit[Audit Trail]
     end
 
-    subgraph Core["🔒 Decision Layer — produces verified outcomes"]
+    subgraph Core["🔒 Decision Layer — final, enforceable system outcome"]
         AI[AI Reasoning Core<br/>System Prompt & i18n]
         Email[Email Verification]
         DB[(PostgreSQL<br/>Decision Store)]
+    end
+
+    subgraph AuditZone["📋 Audit & Accountability"]
+        Audit[Audit Trail]
     end
 
     UI --> Server
@@ -54,6 +57,7 @@ graph TB
     Compliance --> AI
     AI --> Audit
     Audit --> DB
+    Audit -.->|policy refinement| Governance
     Server --> Email
     Email --> DB
 
@@ -62,6 +66,8 @@ graph TB
     style Engines fill:#16213e,stroke:#1a1a2e,color:#e94560
     style Governance fill:#533483,stroke:#1a1a2e,color:#e94560
     style Core fill:#1a1a2e,stroke:#533483,color:#e94560
+    style AuditZone fill:#0a4d3c,stroke:#0d6b4e,color:#2ecc71
+    style Audit fill:#0a4d3c,stroke:#2ecc71,color:#2ecc71
 ```
 
 ### Legend
@@ -70,9 +76,12 @@ graph TB
 |--------|---------|
 | 🧠 **Reasoning Layer** | Generates explanations and analysis for each input |
 | 🏛️ **Governance Layer** | Applies policy constraints and compliance checks |
-| 🔒 **Decision Layer** | Produces verified, auditable outcomes stored on record |
+| 🔒 **Decision Layer** | Produces final, enforceable system outcomes |
+| 📋 **Audit Trail** | Records every decision for accountability and policy refinement |
 
-> **Reasoning ≠ Decision:** The Reasoning Layer generates interpretations and explanations. The Decision Layer validates, records, and makes outcomes auditable. This separation ensures every output is both explainable and verifiable.
+> **Reasoning ≠ Decision:** The Reasoning Layer generates interpretations and explanations. The Decision Layer validates, records, and makes outcomes enforceable. This separation ensures every output is both explainable and verifiable.
+
+> **Continuous Refinement:** The Audit Trail feeds back into the Governance Layer, enabling policy refinement without model retraining — a core principle of the Proof-of-Reason Standard.
 
 ## About
 
